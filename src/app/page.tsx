@@ -1,82 +1,101 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { Hero } from "@/components/home/Hero";
+import {
+  FeaturedCollections,
+  type CollectionCard,
+} from "@/components/home/FeaturedCollections";
+import { FeaturesBanner } from "@/components/home/FeaturesBanner";
 import { ProductCard } from "@/components/ProductCard";
+import { Reveal } from "@/components/motion/Reveal";
+import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import type { Category, ProductWithVariants } from "@/lib/types";
 
-export default async function HomePage({ searchParams }: PageProps<"/">) {
-  const params = await searchParams;
-  const categoriaParam = params.categoria;
-  const categorySlug =
-    typeof categoriaParam === "string" ? categoriaParam : undefined;
+const FEATURED_LIMIT = 8;
 
+export default async function HomePage() {
   const supabase = await createClient();
 
-  const { data: categories } = await supabase
-    .from("categories")
-    .select("*")
-    .order("sort_order", { ascending: true });
+  const [{ data: categories }, { data: coverRows }, { data: featuredProducts }] =
+    await Promise.all([
+      supabase.from("categories").select("*").order("sort_order", { ascending: true }),
+      // Las categorías no tienen foto propia: se usa la portada del
+      // producto activo más nuevo de cada una como imagen de la tarjeta.
+      supabase
+        .from("products")
+        .select("category_id, image_url")
+        .eq("is_active", true)
+        .not("image_url", "is", null)
+        .not("category_id", "is", null)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("products")
+        .select("*, variants:product_variants(*), category:categories(*)")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(FEATURED_LIMIT),
+    ]);
 
-  const baseProductsQuery = () =>
-    supabase
-      .from("products")
-      .select("*, variants:product_variants(*), category:categories(*)")
-      .eq("is_active", true)
-      .order("created_at", { ascending: false });
-
-  let products: ProductWithVariants[] = [];
-
-  if (categorySlug) {
-    // Resolver el slug a id primero (en vez de filtrar por
-    // "category.slug" con un inner join) mantiene el embed de "category"
-    // como left join, así los productos sin categoría siguen apareciendo
-    // cuando no hay filtro activo.
-    const { data: category } = await supabase
-      .from("categories")
-      .select("id")
-      .eq("slug", categorySlug)
-      .maybeSingle();
-
-    if (category) {
-      const { data } = await baseProductsQuery().eq("category_id", category.id);
-      products = (data ?? []) as ProductWithVariants[];
+  const coverByCategory = new Map<string, string>();
+  for (const row of coverRows ?? []) {
+    if (row.category_id && row.image_url && !coverByCategory.has(row.category_id)) {
+      coverByCategory.set(row.category_id, row.image_url);
     }
-    // Si el slug no resuelve a ninguna categoría (URL vieja o inválida),
-    // products queda vacío en vez de mostrar el catálogo entero.
-  } else {
-    const { data } = await baseProductsQuery();
-    products = (data ?? []) as ProductWithVariants[];
   }
 
+  const collections: CollectionCard[] = (categories ?? []).map(
+    (category: Category) => ({
+      category,
+      imageUrl: coverByCategory.get(category.id) ?? null,
+    }),
+  );
+
+  const products = (featuredProducts ?? []) as ProductWithVariants[];
+
   return (
-    <div>
-      <h1>Catálogo</h1>
+    <>
+      <Hero />
 
-      {categories && categories.length > 0 && (
-        <nav className="category-filter">
-          <Link href="/" className={!categorySlug ? "active" : undefined}>
-            Todas
-          </Link>
-          {(categories as Category[]).map((category) => (
+      <FeaturedCollections collections={collections} />
+
+      <section className="relative overflow-hidden border-t-2 border-outline-variant/30 bg-surface-container-lowest py-24">
+        <div className="pointer-events-none absolute right-0 top-0 h-[800px] w-[800px] -translate-y-1/2 translate-x-1/3 rounded-full bg-primary/5 blur-[120px]" />
+        <div className="relative z-10 mx-auto max-w-7xl px-margin-mobile md:px-margin-desktop">
+          <Reveal className="mb-16 flex flex-col items-center text-center">
+            <span className="mb-4 font-label text-label-caps uppercase tracking-[0.2em] text-secondary before:mr-2 before:text-primary before:content-['//'] after:ml-2 after:text-primary after:content-['//']">
+              Lo Más Buscado
+            </span>
+            <h2 className="max-w-2xl font-display text-headline-lg uppercase text-on-surface">
+              Lo que no puede faltar en tu placard
+            </h2>
+          </Reveal>
+
+          {products.length === 0 ? (
+            <p className="text-center text-on-surface-variant">
+              Todavía no hay productos cargados.
+            </p>
+          ) : (
+            <Stagger className="grid grid-cols-2 gap-gutter lg:grid-cols-4">
+              {products.map((product) => (
+                <StaggerItem key={product.id}>
+                  <ProductCard product={product} />
+                </StaggerItem>
+              ))}
+            </Stagger>
+          )}
+
+          <div className="mt-12 flex justify-center">
             <Link
-              key={category.id}
-              href={`/?categoria=${category.slug}`}
-              className={categorySlug === category.slug ? "active" : undefined}
+              href="/catalogo"
+              className="skew-slant border-2 border-primary px-8 py-4 font-display text-headline-sm uppercase tracking-wider text-primary transition-all hover:bg-primary/10"
             >
-              {category.name}
+              <span className="skew-slant block">Ver Todo el Catálogo</span>
             </Link>
-          ))}
-        </nav>
-      )}
-
-      {products.length === 0 ? (
-        <p className="notice">Todavía no hay productos cargados.</p>
-      ) : (
-        <div className="product-grid">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+          </div>
         </div>
-      )}
-    </div>
+      </section>
+
+      <FeaturesBanner />
+    </>
   );
 }

@@ -1,8 +1,28 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Anybody, Hanken_Grotesk, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/lib/cart-context";
-import { CartButton } from "@/components/CartButton";
+import { Header } from "@/components/site/Header";
+import { Footer } from "@/components/site/Footer";
+import { StadiumGlow } from "@/components/site/StadiumGlow";
+
+const anybody = Anybody({
+  subsets: ["latin"],
+  weight: ["700", "800", "900"],
+  variable: "--font-anybody",
+});
+
+const hankenGrotesk = Hanken_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "600"],
+  variable: "--font-hanken-grotesk",
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["500", "700"],
+  variable: "--font-space-grotesk",
+});
 
 const STORE_NAME = process.env.NEXT_PUBLIC_STORE_NAME || "Crash Camisetas";
 
@@ -13,28 +33,16 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es">
-      <body>
+    <html
+      lang="es"
+      className={`${anybody.variable} ${hankenGrotesk.variable} ${spaceGrotesk.variable}`}
+    >
+      <body className="flex min-h-screen flex-col font-body">
         <CartProvider>
-          <header className="site-header">
-            <div className="container site-header-inner">
-              <Link href="/" className="site-logo">
-                {STORE_NAME}
-              </Link>
-              <nav className="site-nav">
-                <Link href="/">Inicio</Link>
-                <CartButton />
-              </nav>
-            </div>
-          </header>
-
-          <main className="container site-main">{children}</main>
-
-          <footer className="site-footer">
-            <div className="container">
-              <p>{STORE_NAME} — pedidos coordinados por WhatsApp</p>
-            </div>
-          </footer>
+          <StadiumGlow />
+          <Header />
+          <main className="flex-1 pt-20">{children}</main>
+          <Footer />
         </CartProvider>
       </body>
     </html>

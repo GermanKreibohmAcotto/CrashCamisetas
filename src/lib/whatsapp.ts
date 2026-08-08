@@ -33,3 +33,10 @@ export function buildWhatsAppUrl(items: CartItem[]): string {
 export function isWhatsAppNumberConfigured(): boolean {
   return WHATSAPP_NUMBER.length > 0;
 }
+
+// Consulta directa de un solo producto (tarjetas de catálogo/home), sin
+// pasar por el carrito — no hay talle ni cantidad todavía.
+export function buildProductInquiryUrl(productName: string): string {
+  const message = `¡Hola ${STORE_NAME}! Me interesa "${productName}", ¿tenés stock y precio?`;
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}

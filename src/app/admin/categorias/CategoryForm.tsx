@@ -39,12 +39,20 @@ export function CategoryForm() {
   }
 
   return (
-    <form className="category-form" onSubmit={handleSubmit}>
-      <h3>Nueva categoría</h3>
-      {error && <p className="form-error">{error}</p>}
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <h3 className="font-display text-sm uppercase text-on-surface">
+        Nueva categoría
+      </h3>
+      {error && (
+        <p className="rounded-sm border border-error/40 bg-error-container/20 px-3 py-2 text-sm text-error">
+          {error}
+        </p>
+      )}
 
-      <label className="field">
-        <span>Nombre</span>
+      <label className="flex flex-col gap-1.5">
+        <span className="text-xs uppercase tracking-wide text-on-surface-variant">
+          Nombre
+        </span>
         <input
           type="text"
           value={name}
@@ -53,11 +61,14 @@ export function CategoryForm() {
             if (!slugTouched) setSlug(slugify(e.target.value));
           }}
           required
+          className="rounded-md border border-outline-variant bg-surface-container-high px-3 py-2 text-on-surface outline-none transition-colors focus:border-primary"
         />
       </label>
 
-      <label className="field">
-        <span>Slug</span>
+      <label className="flex flex-col gap-1.5">
+        <span className="text-xs uppercase tracking-wide text-on-surface-variant">
+          Slug
+        </span>
         <input
           type="text"
           value={slug}
@@ -66,13 +77,14 @@ export function CategoryForm() {
             setSlugTouched(true);
           }}
           required
+          className="rounded-md border border-outline-variant bg-surface-container-high px-3 py-2 text-on-surface outline-none transition-colors focus:border-primary"
         />
       </label>
 
       <button
         type="submit"
-        className="button button-primary"
         disabled={submitting}
+        className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-on-primary transition-colors hover:bg-primary-fixed disabled:opacity-60"
       >
         {submitting ? "Creando…" : "Crear categoría"}
       </button>

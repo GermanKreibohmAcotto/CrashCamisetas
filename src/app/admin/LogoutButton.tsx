@@ -14,12 +14,12 @@ export function LogoutButton({ email }: { email?: string }) {
   }
 
   return (
-    <div className="admin-user">
-      {email && <span className="admin-user-email">{email}</span>}
+    <div className="flex items-center gap-3">
+      {email && <span className="text-sm text-on-surface-variant">{email}</span>}
       <button
         type="button"
-        className="button button-secondary"
         onClick={handleLogout}
+        className="rounded-md border border-outline-variant px-4 py-2 text-sm text-on-surface transition-colors hover:border-primary"
       >
         Salir
       </button>

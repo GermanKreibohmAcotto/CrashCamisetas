@@ -33,6 +33,8 @@ create table if not exists products (
   slug        text not null unique,
   description text,
   image_url   text,
+  -- etiqueta visual opcional para las tarjetas de producto
+  badge       text check (badge is null or badge in ('nuevo', 'retro', 'limitado', 'mas_vendido')),
   is_active   boolean not null default true,
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
@@ -51,6 +53,18 @@ create table if not exists product_variants (
 );
 
 create index if not exists product_variants_product_id_idx on product_variants (product_id);
+
+-- Fotos adicionales de la galería. image_url en products sigue siendo
+-- la portada (la que usan la tarjeta y el carrito); esto es lo extra
+-- que se ve en el detalle.
+create table if not exists product_images (
+  id         uuid primary key default gen_random_uuid(),
+  product_id uuid not null references products (id) on delete cascade,
+  url        text not null,
+  sort_order int not null default 0
+);
+
+create index if not exists product_images_product_id_idx on product_images (product_id);
 
 -- ------------------------------------------------------------
 -- updated_at automático en products
@@ -86,6 +100,7 @@ create trigger products_set_updated_at
 alter table categories enable row level security;
 alter table products enable row level security;
 alter table product_variants enable row level security;
+alter table product_images enable row level security;
 
 -- categories: lectura pública total, escritura solo logueados
 drop policy if exists "categories_select_public" on categories;
@@ -173,6 +188,35 @@ create policy "variants_delete_auth" on product_variants
   to authenticated
   using (true);
 
+-- product_images: misma regla que las demás — lectura pública,
+-- escritura solo logueados. Nombradas "_row_" para no confundirse con
+-- las políticas de storage.objects de más abajo (son tablas distintas,
+-- pero comparten el prefijo "product_images").
+drop policy if exists "product_images_row_select_public" on product_images;
+create policy "product_images_row_select_public" on product_images
+  for select
+  to anon, authenticated
+  using (true);
+
+drop policy if exists "product_images_row_insert_auth" on product_images;
+create policy "product_images_row_insert_auth" on product_images
+  for insert
+  to authenticated
+  with check (true);
+
+drop policy if exists "product_images_row_update_auth" on product_images;
+create policy "product_images_row_update_auth" on product_images
+  for update
+  to authenticated
+  using (true)
+  with check (true);
+
+drop policy if exists "product_images_row_delete_auth" on product_images;
+create policy "product_images_row_delete_auth" on product_images
+  for delete
+  to authenticated
+  using (true);
+
 -- ------------------------------------------------------------
 -- Storage: bucket público de imágenes de producto
 -- (RLS ya viene habilitada por Supabase en storage.objects)
@@ -238,3 +282,6 @@ cross join (
 ) as v(size, stock, sort_order)
 where p.slug in ('boca-juniors-titular-2026', 'river-plate-suplente-2026')
 on conflict (product_id, size) do nothing;
+
+update products set badge = 'nuevo'
+where slug = 'boca-juniors-titular-2026' and badge is null;

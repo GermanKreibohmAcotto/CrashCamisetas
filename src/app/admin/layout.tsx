@@ -19,18 +19,30 @@ export default async function AdminLayout({
     typeof data.claims.email === "string" ? data.claims.email : undefined;
 
   return (
-    <div>
-      <div className="admin-header">
-        <h1>Administración</h1>
+    <div className="mx-auto max-w-6xl px-margin-mobile py-10 md:px-margin-desktop">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <h1 className="font-display text-headline-md uppercase text-on-surface">
+          Administración
+        </h1>
         <LogoutButton email={email} />
       </div>
 
-      <nav className="admin-nav">
-        <Link href="/admin">Productos</Link>
-        <Link href="/admin/categorias">Categorías</Link>
+      <nav className="mb-8 flex gap-6 border-b border-outline-variant/30 pb-4">
+        <Link
+          href="/admin"
+          className="text-sm text-on-surface-variant transition-colors hover:text-on-surface"
+        >
+          Productos
+        </Link>
+        <Link
+          href="/admin/categorias"
+          className="text-sm text-on-surface-variant transition-colors hover:text-on-surface"
+        >
+          Categorías
+        </Link>
       </nav>
 
-      <div className="admin-content">{children}</div>
+      <div>{children}</div>
     </div>
   );
 }

@@ -23,9 +23,9 @@ export function DeleteCategoryButton({
   return (
     <button
       type="button"
-      className="button button-text"
       disabled={isPending}
       onClick={handleClick}
+      className="text-error transition-colors hover:underline disabled:opacity-50"
     >
       Eliminar
     </button>

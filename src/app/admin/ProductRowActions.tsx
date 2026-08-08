@@ -15,11 +15,11 @@ export function ToggleActiveButton({
   return (
     <button
       type="button"
-      className="button button-text"
       disabled={isPending}
       onClick={() =>
         startTransition(() => toggleProductActive(productId, !isActive))
       }
+      className="text-on-surface-variant transition-colors hover:text-on-surface disabled:opacity-50"
     >
       {isActive ? "Desactivar" : "Activar"}
     </button>
@@ -46,9 +46,9 @@ export function DeleteProductButton({
   return (
     <button
       type="button"
-      className="button button-text"
       disabled={isPending}
       onClick={handleClick}
+      className="text-error transition-colors hover:underline disabled:opacity-50"
     >
       Eliminar
     </button>

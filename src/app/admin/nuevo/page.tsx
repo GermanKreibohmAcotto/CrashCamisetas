@@ -11,7 +11,9 @@ export default async function NewProductPage() {
 
   return (
     <div>
-      <h2>Nuevo producto</h2>
+      <h2 className="mb-6 font-display text-headline-sm uppercase text-on-surface">
+        Nuevo producto
+      </h2>
       <ProductForm categories={(data ?? []) as Category[]} mode="create" />
     </div>
   );

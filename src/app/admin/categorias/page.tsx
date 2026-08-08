@@ -14,26 +14,37 @@ export default async function AdminCategoriesPage() {
 
   return (
     <div>
-      <h2>Categorías</h2>
+      <h2 className="mb-6 font-display text-headline-sm uppercase text-on-surface">
+        Categorías
+      </h2>
 
       {categories.length === 0 ? (
-        <p className="notice">Todavía no hay categorías.</p>
+        <p className="text-on-surface-variant">Todavía no hay categorías.</p>
       ) : (
-        <div className="table-wrapper">
-          <table>
+        <div className="mb-8 overflow-x-auto rounded-sm border border-outline-variant/30">
+          <table className="w-full border-collapse text-sm">
             <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Slug</th>
-                <th aria-label="Acciones"></th>
+              <tr className="border-b border-outline-variant/30 bg-surface-container">
+                <th className="px-3 py-2 text-left text-xs uppercase tracking-wide text-on-surface-variant">
+                  Nombre
+                </th>
+                <th className="px-3 py-2 text-left text-xs uppercase tracking-wide text-on-surface-variant">
+                  Slug
+                </th>
+                <th className="px-3 py-2" aria-label="Acciones"></th>
               </tr>
             </thead>
             <tbody>
               {categories.map((category) => (
-                <tr key={category.id}>
-                  <td>{category.name}</td>
-                  <td>{category.slug}</td>
-                  <td>
+                <tr
+                  key={category.id}
+                  className="border-b border-outline-variant/20 last:border-0"
+                >
+                  <td className="px-3 py-2 text-on-surface">{category.name}</td>
+                  <td className="px-3 py-2 text-on-surface-variant">
+                    {category.slug}
+                  </td>
+                  <td className="px-3 py-2">
                     <DeleteCategoryButton
                       categoryId={category.id}
                       categoryName={category.name}
@@ -46,7 +57,7 @@ export default async function AdminCategoriesPage() {
         </div>
       )}
 
-      <div className="category-form-wrapper">
+      <div className="max-w-sm rounded-sm border border-outline-variant/30 bg-surface-container p-6">
         <CategoryForm />
       </div>
     </div>
