@@ -1,69 +1,82 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { ProductCard } from "@/components/ProductCard";
+import type { Category, ProductWithVariants } from "@/lib/types";
 
-export default function Home() {
+export default async function HomePage({ searchParams }: PageProps<"/">) {
+  const params = await searchParams;
+  const categoriaParam = params.categoria;
+  const categorySlug =
+    typeof categoriaParam === "string" ? categoriaParam : undefined;
+
+  const supabase = await createClient();
+
+  const { data: categories } = await supabase
+    .from("categories")
+    .select("*")
+    .order("sort_order", { ascending: true });
+
+  const baseProductsQuery = () =>
+    supabase
+      .from("products")
+      .select("*, variants:product_variants(*), category:categories(*)")
+      .eq("is_active", true)
+      .order("created_at", { ascending: false });
+
+  let products: ProductWithVariants[] = [];
+
+  if (categorySlug) {
+    // Resolver el slug a id primero (en vez de filtrar por
+    // "category.slug" con un inner join) mantiene el embed de "category"
+    // como left join, así los productos sin categoría siguen apareciendo
+    // cuando no hay filtro activo.
+    const { data: category } = await supabase
+      .from("categories")
+      .select("id")
+      .eq("slug", categorySlug)
+      .maybeSingle();
+
+    if (category) {
+      const { data } = await baseProductsQuery().eq("category_id", category.id);
+      products = (data ?? []) as ProductWithVariants[];
+    }
+    // Si el slug no resuelve a ninguna categoría (URL vieja o inválida),
+    // products queda vacío en vez de mostrar el catálogo entero.
+  } else {
+    const { data } = await baseProductsQuery();
+    products = (data ?? []) as ProductWithVariants[];
+  }
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.tsx</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
+    <div>
+      <h1>Catálogo</h1>
+
+      {categories && categories.length > 0 && (
+        <nav className="category-filter">
+          <Link href="/" className={!categorySlug ? "active" : undefined}>
+            Todas
+          </Link>
+          {(categories as Category[]).map((category) => (
+            <Link
+              key={category.id}
+              href={`/?categoria=${category.slug}`}
+              className={categorySlug === category.slug ? "active" : undefined}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              {category.name}
+            </Link>
+          ))}
+        </nav>
+      )}
+
+      {products.length === 0 ? (
+        <p className="notice">Todavía no hay productos cargados.</p>
+      ) : (
+        <div className="product-grid">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      )}
     </div>
   );
 }
