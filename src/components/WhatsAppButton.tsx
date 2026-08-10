@@ -1,7 +1,7 @@
 "use client";
 
 import { buildWhatsAppUrl, isWhatsAppNumberConfigured } from "@/lib/whatsapp";
-import { IconChat } from "@/components/icons";
+import { IconWhatsApp } from "@/components/icons";
 import type { CartItem } from "@/lib/types";
 
 export function WhatsAppButton({ items }: { items: CartItem[] }) {
@@ -23,7 +23,10 @@ export function WhatsAppButton({ items }: { items: CartItem[] }) {
       rel="noopener noreferrer"
       className="skew-slant flex items-center justify-center gap-3 bg-whatsapp px-8 py-5 font-display text-headline-sm text-white transition-all hover:brightness-110 active:translate-y-1"
     >
-      <IconChat className="skew-slant h-5 w-5" />
+      <IconWhatsApp
+        className="skew-slant h-5 w-5"
+        cutoutColor="var(--color-whatsapp)"
+      />
       <span className="skew-slant uppercase">Enviar pedido por WhatsApp</span>
     </a>
   );

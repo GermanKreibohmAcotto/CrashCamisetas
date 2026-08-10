@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { IconChat } from "@/components/icons";
+import { IconWhatsApp } from "@/components/icons";
 
 const STORE_NAME = process.env.NEXT_PUBLIC_STORE_NAME || "Crash Camisetas";
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
@@ -98,7 +98,10 @@ export function Footer() {
               rel="noopener noreferrer"
               className="skew-slant flex items-center gap-3 bg-whatsapp px-8 py-4 font-display text-headline-sm text-white transition-all hover:brightness-110 active:translate-y-0.5"
             >
-              <IconChat className="skew-slant h-5 w-5" />
+              <IconWhatsApp
+                className="skew-slant h-5 w-5"
+                cutoutColor="var(--color-whatsapp)"
+              />
               <span className="skew-slant">Chatear por WhatsApp</span>
             </a>
           )}

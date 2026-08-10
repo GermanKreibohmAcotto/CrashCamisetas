@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { BADGE_LABEL, type ProductWithVariants } from "@/lib/types";
 import { buildProductInquiryUrl, isWhatsAppNumberConfigured } from "@/lib/whatsapp";
-import { IconChat } from "@/components/icons";
+import { IconWhatsApp } from "@/components/icons";
 
 // Server Component: todo el hover/overlay es CSS puro (group-hover),
 // el único link interactivo es un <a> directo a WhatsApp — no hace
@@ -14,7 +14,7 @@ export function ProductCard({ product }: { product: ProductWithVariants }) {
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-sm border border-outline-variant/30 bg-surface-container p-4 shadow-md transition-all duration-300 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10">
       {product.badge && (
-        <div className="skew-slant absolute left-4 top-4 z-10 bg-secondary px-2 py-1">
+        <div className="skew-slant absolute left-4 top-4 z-30 bg-secondary px-2 py-1">
           <span className="skew-slant block font-label text-[10px] font-bold uppercase text-on-secondary">
             {BADGE_LABEL[product.badge]}
           </span>
@@ -75,7 +75,7 @@ export function ProductCard({ product }: { product: ProductWithVariants }) {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 font-label text-label-caps uppercase text-whatsapp transition-colors hover:text-primary"
               >
-                <IconChat className="h-4 w-4" />
+                <IconWhatsApp className="h-4 w-4" />
                 Consultar
               </a>
             )

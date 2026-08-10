@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { useCart } from "@/lib/cart-context";
-import { IconCheck, IconChat } from "@/components/icons";
+import { IconCheck, IconWhatsApp } from "@/components/icons";
 import type { ProductWithVariants } from "@/lib/types";
 
 // Reemplaza el <select> original por la grilla de talles del diseño y
@@ -134,7 +134,10 @@ export function SizeSelector({ product }: { product: ProductWithVariants }) {
               type="submit"
               className={`${pinnedButtonClasses} bg-whatsapp text-white hover:brightness-110 active:translate-y-1`}
             >
-              <IconChat className="skew-slant h-5 w-5" />
+              <IconWhatsApp
+                className="skew-slant h-5 w-5"
+                cutoutColor="var(--color-whatsapp)"
+              />
               <span className="skew-slant uppercase">Agregar al pedido</span>
             </button>
           </motion.div>

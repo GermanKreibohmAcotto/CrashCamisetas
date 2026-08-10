@@ -29,10 +29,34 @@ const item: Variants = {
 // ya está a la vista desde el primer frame.
 export function Hero() {
   return (
-    <section className="stadium-glow relative flex min-h-[85vh] w-full items-center overflow-hidden bg-surface">
-      <div className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-gutter px-margin-mobile py-24 md:px-margin-desktop lg:grid-cols-12">
+    <section className="relative flex min-h-[92vh] w-full items-center overflow-hidden bg-surface">
+      {/* Foto del estadio de fondo, con un zoom lento tipo Ken Burns para
+          que la sección no se sienta estática al cargar. */}
+      <motion.div
+        className="absolute inset-0 z-0"
+        initial={{ scale: 1.08 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 2.4, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <Image
+          src="/hero-stadium.png"
+          alt="El estadio de Crash Camisetas, con la hinchada, la colección de camisetas colgadas y el cristal central en la cancha."
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+      </motion.div>
+
+      {/* Degradados: dan contraste para el texto y funden la foto con el
+          tema oscuro del resto del sitio en vez de cortar en seco. */}
+      <div className="absolute inset-0 z-[1] bg-surface/35" />
+      <div className="absolute inset-0 z-[1] bg-gradient-to-r from-surface via-surface/55 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 z-[1] h-56 bg-gradient-to-t from-surface to-transparent" />
+
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-margin-mobile py-24 md:px-margin-desktop">
         <motion.div
-          className="flex flex-col gap-8 lg:col-span-7"
+          className="flex max-w-2xl flex-col gap-8"
           initial="hidden"
           animate="visible"
           variants={container}
@@ -94,24 +118,6 @@ export function Hero() {
               </a>
             )}
           </motion.div>
-        </motion.div>
-
-        <motion.div
-          className="relative hidden justify-center lg:col-span-5 lg:flex"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div className="motion-safe:animate-pulse absolute -inset-4 rounded-full bg-primary/20 opacity-50 blur-3xl" />
-          <Image
-            src="/logo.png"
-            alt="Crash Camisetas"
-            width={420}
-            height={420}
-            priority
-            className="relative z-10 w-full max-w-md object-contain drop-shadow-2xl transition-transform duration-700 ease-out hover:scale-105"
-            style={{ filter: "drop-shadow(0 0 30px rgba(151,204,254,0.4))" }}
-          />
         </motion.div>
       </div>
 

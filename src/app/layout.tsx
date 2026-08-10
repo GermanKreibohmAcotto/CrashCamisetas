@@ -29,6 +29,18 @@ const STORE_NAME = process.env.NEXT_PUBLIC_STORE_NAME || "Crash Camisetas";
 export const metadata: Metadata = {
   title: STORE_NAME,
   description: `Catálogo de ${STORE_NAME}. Armá tu pedido y enviálo por WhatsApp.`,
+  icons: {
+    icon: [
+      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
+  },
+  manifest: "/site.webmanifest",
+  other: {
+    "apple-mobile-web-app-title": STORE_NAME,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

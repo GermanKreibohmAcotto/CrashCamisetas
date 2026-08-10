@@ -6,7 +6,7 @@ import Image from "next/image";
 import { AnimatePresence, motion, useScroll } from "motion/react";
 import { CartButton } from "@/components/CartButton";
 import { SearchBar } from "@/components/catalog/SearchBar";
-import { IconChat, IconClose, IconMenu } from "@/components/icons";
+import { IconWhatsApp, IconClose, IconMenu } from "@/components/icons";
 
 const STORE_NAME = process.env.NEXT_PUBLIC_STORE_NAME || "Crash Camisetas";
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
@@ -41,7 +41,7 @@ export function Header() {
             priority
           />
           <span className="font-display text-headline-sm uppercase italic tracking-tighter text-primary">
-            Crash
+            Crash Camisetas
           </span>
         </Link>
 
@@ -81,7 +81,7 @@ export function Header() {
               className="hidden text-whatsapp transition-transform hover:scale-110 sm:block"
               aria-label="Consultar por WhatsApp"
             >
-              <IconChat className="h-6 w-6" />
+              <IconWhatsApp className="h-6 w-6" />
             </a>
           )}
           <button
