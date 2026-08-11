@@ -4,6 +4,7 @@ import { useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { slugify } from "@/lib/slugify";
+import { toUploadableImage } from "@/lib/heic";
 import { createProduct, updateProduct, type VariantInput } from "./actions";
 import type { Category, ProductBadge } from "@/lib/types";
 import { IconClose } from "@/components/icons";
@@ -77,12 +78,22 @@ export function ProductForm({
   }
 
   async function uploadToStorage(file: File): Promise<string | null> {
-    const ext = file.name.split(".").pop() || "jpg";
+    let uploadable: File;
+    try {
+      uploadable = await toUploadableImage(file);
+    } catch {
+      setFormError(
+        `No se pudo convertir "${file.name}" (HEIC). Probá exportarla como JPG.`,
+      );
+      return null;
+    }
+
+    const ext = uploadable.name.split(".").pop() || "jpg";
     const path = `${crypto.randomUUID()}.${ext}`;
 
     const { error } = await supabase.storage
       .from("product-images")
-      .upload(path, file);
+      .upload(path, uploadable);
 
     if (error) {
       setFormError(`No se pudo subir "${file.name}": ${error.message}`);
@@ -294,12 +305,14 @@ export function ProductForm({
         )}
         <input
           type="file"
-          accept="image/*"
+          accept="image/*,.heic,.heif"
           onChange={handleCoverChange}
           className="text-sm text-on-surface-variant file:mr-3 file:rounded-md file:border-0 file:bg-surface-container-high file:px-3 file:py-1.5 file:text-on-surface"
         />
         {uploadingCover && (
-          <p className="text-sm text-on-surface-variant">Subiendo imagen…</p>
+          <p className="text-sm text-on-surface-variant">
+            Subiendo imagen… (las HEIC de iPhone se convierten solas)
+          </p>
         )}
       </div>
 
@@ -327,13 +340,15 @@ export function ProductForm({
         )}
         <input
           type="file"
-          accept="image/*"
+          accept="image/*,.heic,.heif"
           multiple
           onChange={handleGalleryChange}
           className="text-sm text-on-surface-variant file:mr-3 file:rounded-md file:border-0 file:bg-surface-container-high file:px-3 file:py-1.5 file:text-on-surface"
         />
         {uploadingGallery && (
-          <p className="text-sm text-on-surface-variant">Subiendo fotos…</p>
+          <p className="text-sm text-on-surface-variant">
+            Subiendo fotos… (las HEIC de iPhone se convierten solas)
+          </p>
         )}
       </div>
 

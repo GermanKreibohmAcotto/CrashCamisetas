@@ -52,6 +52,7 @@ Completar en `.env.local`:
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Project Settings → API Keys → Publishable key (`sb_publishable_...`) |
 | `NEXT_PUBLIC_WHATSAPP_NUMBER` | Número que recibe los pedidos. Formato internacional, solo dígitos, sin `+` (ej: `5491122334455`) |
 | `NEXT_PUBLIC_STORE_NAME` | Nombre que aparece en el header y en el saludo del mensaje de WhatsApp |
+| `NEXT_PUBLIC_INSTAGRAM_URL` | Link del perfil de Instagram, se muestra en el footer. Vacío = no se muestra |
 
 ### 5. Instalar y correr
 

@@ -6,7 +6,7 @@ const FEATURES = [
     icon: IconShield,
     title: "Calidad Premium",
     description:
-      "Telas de alta tecnología, costuras reforzadas y detalles fieles a los originales.",
+      "Telas de alta tecnología, trabajamos con provedores G5 nacionales e importados, consultanos para mas información.",
     color: "text-primary",
     glow: "group-hover:border-primary group-hover:shadow-[0_0_15px_rgba(151,204,254,0.3)]",
   },

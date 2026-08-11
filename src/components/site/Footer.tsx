@@ -1,13 +1,22 @@
 import Link from "next/link";
-import { IconWhatsApp } from "@/components/icons";
+import { IconInstagram, IconWhatsApp } from "@/components/icons";
 
 const STORE_NAME = process.env.NEXT_PUBLIC_STORE_NAME || "Crash Camisetas";
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
+const INSTAGRAM_URL = process.env.NEXT_PUBLIC_INSTAGRAM_URL || "";
 
 function waLink(message: string) {
   return WHATSAPP_NUMBER
     ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`
     : undefined;
+}
+
+// No hardcodeamos el @handle: si algún día cambia NEXT_PUBLIC_INSTAGRAM_URL,
+// el texto visible tiene que seguirlo solo. Sin new URL() para no romper
+// el render si alguien pega la URL con un typo.
+function instagramHandle(url: string): string {
+  const match = url.match(/instagram\.com\/([^/?]+)/i);
+  return match ? `@${match[1]}` : "Instagram";
 }
 
 // Los links de "soporte" del mockup (envíos, devoluciones, FAQ) no
@@ -33,6 +42,20 @@ export function Footer() {
             Camisetas de fútbol para verdaderos hinchas. Elegís, consultás
             por WhatsApp y listo.
           </p>
+          {INSTAGRAM_URL && (
+            <a
+              href={INSTAGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Seguinos en Instagram"
+              className="flex w-fit items-center gap-2 text-on-surface-variant transition-colors hover:text-primary"
+            >
+              <IconInstagram className="h-5 w-5" />
+              <span className="font-label text-label-caps uppercase">
+                {instagramHandle(INSTAGRAM_URL)}
+              </span>
+            </a>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-12">
