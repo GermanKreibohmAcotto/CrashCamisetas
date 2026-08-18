@@ -8,8 +8,10 @@
 -- y seed usan guards idempotentes) — útil si algo falla a mitad
 -- de camino y hay que reintentar.
 --
--- OJO: acá no hay ninguna columna de precio. A propósito: los
--- precios se acuerdan por WhatsApp, no se publican en la tienda.
+-- products.price es nullable a propósito: null significa "a
+-- convenir" y la tienda lo soporta de forma permanente (muestra
+-- "Consultar" y el pedido de WhatsApp sale pidiendo el precio).
+-- No es un estado transitorio a completar.
 -- ============================================================
 
 create extension if not exists pgcrypto;
@@ -33,6 +35,10 @@ create table if not exists products (
   slug        text not null unique,
   description text,
   image_url   text,
+  -- importe en pesos. null = "a convenir", se charla por WhatsApp.
+  -- numeric y no float: los float binarios no representan importes
+  -- decimales de forma exacta.
+  price       numeric(12,2) check (price is null or price >= 0),
   -- etiqueta visual opcional para las tarjetas de producto
   badge       text check (badge is null or badge in ('nuevo', 'retro', 'limitado', 'mas_vendido')),
   is_active   boolean not null default true,

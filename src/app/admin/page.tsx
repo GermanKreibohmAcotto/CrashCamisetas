@@ -3,6 +3,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { ToggleActiveButton, DeleteProductButton } from "./ProductRowActions";
 import type { ProductWithVariants } from "@/lib/types";
+import { formatPrice } from "@/lib/format";
 
 export default async function AdminProductsPage() {
   const supabase = await createClient();
@@ -45,6 +46,9 @@ export default async function AdminProductsPage() {
                   Categoría
                 </th>
                 <th className="px-3 py-2 text-left text-xs uppercase tracking-wide text-on-surface-variant">
+                  Precio
+                </th>
+                <th className="px-3 py-2 text-left text-xs uppercase tracking-wide text-on-surface-variant">
                   Stock total
                 </th>
                 <th className="px-3 py-2 text-left text-xs uppercase tracking-wide text-on-surface-variant">
@@ -80,6 +84,9 @@ export default async function AdminProductsPage() {
                     <td className="px-3 py-2 text-on-surface">{product.name}</td>
                     <td className="px-3 py-2 text-on-surface-variant">
                       {product.category?.name ?? "—"}
+                    </td>
+                    <td className="px-3 py-2 text-on-surface-variant">
+                      {formatPrice(product.price) ?? "—"}
                     </td>
                     <td className="px-3 py-2 text-on-surface-variant">
                       {totalStock}

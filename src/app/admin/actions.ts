@@ -16,6 +16,10 @@ export type ProductInput = {
   description: string;
   categoryId: string | null;
   imageUrl: string | null;
+  // null = "a convenir" (se charla por WhatsApp). Distinto de 0, que es
+  // un precio real: el form lo maneja como string para no confundir
+  // "campo vacío" con "cero" — ver ProductForm.tsx.
+  price: number | null;
   badge: ProductBadge | null;
   isActive: boolean;
   variants: VariantInput[];
@@ -30,7 +34,7 @@ const UNIQUE_VIOLATION = "23505";
 const UNDEFINED_COLUMN = "42703";
 const UNDEFINED_TABLE = "42P01";
 const MIGRATION_HINT =
-  "Falta correr la migración de diseño (supabase/migrations/001_design.sql) en el SQL Editor de Supabase.";
+  "Falta correr alguna migración pendiente (carpeta supabase/migrations/) en el SQL Editor de Supabase.";
 
 function isMissingSchemaError(code: string | undefined): boolean {
   return code === UNDEFINED_COLUMN || code === UNDEFINED_TABLE;
@@ -117,6 +121,7 @@ export async function createProduct(
       description: input.description || null,
       category_id: input.categoryId,
       image_url: input.imageUrl,
+      price: input.price,
       badge: input.badge,
       is_active: input.isActive,
     })
@@ -162,6 +167,7 @@ export async function updateProduct(
       description: input.description || null,
       category_id: input.categoryId,
       image_url: input.imageUrl,
+      price: input.price,
       badge: input.badge,
       is_active: input.isActive,
     })

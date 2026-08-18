@@ -8,6 +8,7 @@ import { Marquee } from "@/components/site/Marquee";
 import { Reveal } from "@/components/motion/Reveal";
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import type { ProductImage, ProductWithVariants } from "@/lib/types";
+import { formatPrice } from "@/lib/format";
 
 export default async function ProductPage({
   params,
@@ -57,6 +58,7 @@ export default async function ProductPage({
   const nameParts = typedProduct.name.split(" ");
   const lastWord = nameParts.pop();
   const nameLead = nameParts.join(" ");
+  const price = formatPrice(typedProduct.price);
 
   return (
     <>
@@ -82,6 +84,10 @@ export default async function ProductPage({
                 <span className="italic text-secondary">{lastWord}</span>
               )}
             </h1>
+
+            <p className="font-display text-headline-md text-primary">
+              {price ?? "Consultar por WhatsApp"}
+            </p>
 
             {typedProduct.description && (
               <p className="max-w-xl font-body text-body-lg text-on-surface-variant">

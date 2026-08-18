@@ -56,6 +56,7 @@ export default async function EditProductPage({
           description: typedProduct.description ?? "",
           categoryId: typedProduct.category_id,
           imageUrl: typedProduct.image_url,
+          price: typedProduct.price ?? null,
           badge: typedProduct.badge ?? null,
           isActive: typedProduct.is_active,
           variants: sortedVariants.map((v) => ({

@@ -4,11 +4,19 @@ import Link from "next/link";
 import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
 import { useCart } from "@/lib/cart-context";
+import { useCartPrices } from "@/lib/use-cart-prices";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { IconClose } from "@/components/icons";
+import { formatPrice, parsePrice } from "@/lib/format";
+import type { CartItem } from "@/lib/types";
+import type { PriceMap } from "@/lib/whatsapp";
 
 export default function CartPage() {
   const { items, hydrated, setQty, removeItem, clear } = useCart();
+  // Llamado sin condiciones, antes de los early return de abajo: las
+  // reglas de hooks no permiten saltearlo cuando !hydrated o el carrito
+  // está vacío. Con items = [] el hook no dispara ningún fetch.
+  const { prices, loading: pricesLoading } = useCartPrices(items);
 
   if (!hydrated) {
     return (
@@ -42,7 +50,11 @@ export default function CartPage() {
 
       <ul className="mb-8 flex flex-col divide-y divide-outline-variant/30 border-t border-outline-variant/30">
         <AnimatePresence initial={false}>
-          {items.map((item) => (
+          {items.map((item) => {
+            const price = parsePrice(prices.get(item.productId));
+            const subtotal = price !== null ? formatPrice(price * item.qty) : null;
+
+            return (
             <motion.li
               key={item.variantId}
               layout
@@ -78,6 +90,11 @@ export default function CartPage() {
                 <p className="text-sm text-on-surface-variant">
                   Talle {item.size}
                 </p>
+                {!pricesLoading && (
+                  <p className="text-sm text-primary">
+                    {subtotal ?? "Precio a confirmar"}
+                  </p>
+                )}
               </div>
 
               <input
@@ -105,11 +122,16 @@ export default function CartPage() {
                 <IconClose className="h-5 w-5" />
               </button>
             </motion.li>
-          ))}
+            );
+          })}
         </AnimatePresence>
       </ul>
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      {!pricesLoading && (
+        <CartTotal items={items} prices={prices} />
+      )}
+
+      <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <button
           type="button"
           onClick={clear}
@@ -117,8 +139,46 @@ export default function CartPage() {
         >
           Vaciar pedido
         </button>
-        <WhatsAppButton items={items} />
+        <WhatsAppButton items={items} prices={prices} pricesLoading={pricesLoading} />
       </div>
+    </div>
+  );
+}
+
+// Total del pedido, sumando solo lo que tiene precio cargado. Si ningún
+// ítem lo tiene todavía (el estado de todos los productos hoy), no
+// renderiza nada — el carrito se ve igual que antes de este cambio.
+function CartTotal({ items, prices }: { items: CartItem[]; prices: PriceMap }) {
+  const totalQty = items.reduce((sum, item) => sum + item.qty, 0);
+
+  const { known, missingQty } = items.reduce(
+    (acc, item) => {
+      const price = parsePrice(prices.get(item.productId));
+      if (price !== null) {
+        acc.known += price * item.qty;
+      } else {
+        acc.missingQty += item.qty;
+      }
+      return acc;
+    },
+    { known: 0, missingQty: 0 },
+  );
+
+  if (missingQty === totalQty) return null;
+
+  return (
+    <div className="mb-8 flex items-center justify-between border-t border-outline-variant/30 pt-4">
+      <span className="font-label text-label-caps uppercase text-on-surface-variant">
+        Total
+      </span>
+      <span className="font-display text-headline-md text-primary">
+        {formatPrice(known)}
+        {missingQty > 0 && (
+          <span className="ml-2 text-sm text-on-surface-variant">
+            + {missingQty} a confirmar
+          </span>
+        )}
+      </span>
     </div>
   );
 }

@@ -31,6 +31,7 @@ type ProductFormProps = {
     description: string;
     categoryId: string | null;
     imageUrl: string | null;
+    price: number | null;
     badge: ProductBadge | null;
     isActive: boolean;
     variants: VariantInput[];
@@ -51,6 +52,14 @@ export function ProductForm({
   const [slugTouched, setSlugTouched] = useState(mode === "edit");
   const [description, setDescription] = useState(initial?.description ?? "");
   const [categoryId, setCategoryId] = useState(initial?.categoryId ?? "");
+  // String, no number: el resto del form usa el idiom Number(x) || 0 para
+  // stock, pero eso colapsa "", 0 y NaN todos a 0 — acá necesitamos poder
+  // distinguir "sin precio cargado" (input vacío) de "precio cero" real.
+  const [price, setPrice] = useState(
+    initial?.price !== null && initial?.price !== undefined
+      ? String(initial.price)
+      : "",
+  );
   const [badge, setBadge] = useState<ProductBadge | null>(initial?.badge ?? null);
   const [isActive, setIsActive] = useState(initial?.isActive ?? true);
   const [imageUrl, setImageUrl] = useState<string | null>(
@@ -164,6 +173,16 @@ export function ProductForm({
       return;
     }
 
+    const cleanPrice = price.trim();
+    let priceValue: number | null = null;
+    if (cleanPrice !== "") {
+      priceValue = Number(cleanPrice);
+      if (!Number.isFinite(priceValue) || priceValue < 0) {
+        setFormError("El precio tiene que ser un número mayor o igual a 0.");
+        return;
+      }
+    }
+
     const cleanVariants = variants
       .map((v) => ({ size: v.size.trim(), stock: Number(v.stock) || 0 }))
       .filter((v) => v.size.length > 0);
@@ -189,6 +208,7 @@ export function ProductForm({
       description: description.trim(),
       categoryId: categoryId || null,
       imageUrl,
+      price: priceValue,
       badge,
       isActive,
       variants: cleanVariants,
@@ -247,6 +267,19 @@ export function ProductForm({
           onChange={(e) => setDescription(e.target.value)}
           rows={3}
           className={`${inputClasses} resize-y`}
+        />
+      </label>
+
+      <label className={labelClasses}>
+        <span className={labelTextClasses}>Precio</span>
+        <input
+          type="number"
+          min={0}
+          step="0.01"
+          placeholder="Dejar vacío = a convenir por WhatsApp"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          className={inputClasses}
         />
       </label>
 

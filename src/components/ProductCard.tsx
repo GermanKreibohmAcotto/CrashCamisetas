@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { BADGE_LABEL, type ProductWithVariants } from "@/lib/types";
 import { buildProductInquiryUrl, isWhatsAppNumberConfigured } from "@/lib/whatsapp";
+import { formatPrice } from "@/lib/format";
 import { IconWhatsApp } from "@/components/icons";
 
 // Server Component: todo el hover/overlay es CSS puro (group-hover),
@@ -10,6 +11,7 @@ import { IconWhatsApp } from "@/components/icons";
 export function ProductCard({ product }: { product: ProductWithVariants }) {
   const totalStock = product.variants.reduce((sum, v) => sum + v.stock, 0);
   const soldOut = totalStock === 0;
+  const price = formatPrice(product.price);
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-sm border border-outline-variant/30 bg-surface-container p-4 shadow-md transition-all duration-300 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10">
@@ -62,7 +64,12 @@ export function ProductCard({ product }: { product: ProductWithVariants }) {
           </p>
         )}
 
-        <div className="mt-3 flex items-center">
+        <div className="mt-3 flex items-center justify-between gap-2">
+          {price && (
+            <span className="font-display text-headline-sm text-primary">
+              {price}
+            </span>
+          )}
           {soldOut ? (
             <span className="font-label text-label-caps uppercase text-on-surface-variant">
               Agotado
@@ -70,7 +77,7 @@ export function ProductCard({ product }: { product: ProductWithVariants }) {
           ) : (
             isWhatsAppNumberConfigured() && (
               <a
-                href={buildProductInquiryUrl(product.name)}
+                href={buildProductInquiryUrl(product.name, product.price)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 font-label text-label-caps uppercase text-whatsapp transition-colors hover:text-primary"
