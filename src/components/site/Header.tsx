@@ -6,7 +6,8 @@ import Image from "next/image";
 import { AnimatePresence, motion, useScroll } from "motion/react";
 import { CartButton } from "@/components/CartButton";
 import { SearchBar } from "@/components/catalog/SearchBar";
-import { IconWhatsApp, IconClose, IconMenu } from "@/components/icons";
+import { X, Menu } from "lucide-react";
+import { SiWhatsapp } from "@icons-pack/react-simple-icons";
 
 const STORE_NAME = process.env.NEXT_PUBLIC_STORE_NAME || "Crash Camisetas";
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
@@ -81,7 +82,7 @@ export function Header() {
               className="hidden text-whatsapp transition-transform hover:scale-110 sm:block"
               aria-label="Consultar por WhatsApp"
             >
-              <IconWhatsApp className="h-6 w-6" />
+              <SiWhatsapp className="h-6 w-6" />
             </a>
           )}
           <button
@@ -91,7 +92,7 @@ export function Header() {
             aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
             aria-expanded={menuOpen}
           >
-            {menuOpen ? <IconClose className="h-6 w-6" /> : <IconMenu className="h-6 w-6" />}
+            {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
       </div>

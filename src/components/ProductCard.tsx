@@ -3,7 +3,7 @@ import Link from "next/link";
 import { BADGE_LABEL, type ProductWithVariants } from "@/lib/types";
 import { buildProductInquiryUrl, isWhatsAppNumberConfigured } from "@/lib/whatsapp";
 import { formatPrice } from "@/lib/format";
-import { IconWhatsApp } from "@/components/icons";
+import { SiWhatsapp } from "@icons-pack/react-simple-icons";
 
 // Server Component: todo el hover/overlay es CSS puro (group-hover),
 // el único link interactivo es un <a> directo a WhatsApp — no hace
@@ -64,30 +64,29 @@ export function ProductCard({ product }: { product: ProductWithVariants }) {
           </p>
         )}
 
-        <div className="mt-3 flex items-center justify-between gap-2">
-          {price && (
-            <span className="font-display text-headline-sm text-primary">
-              {price}
-            </span>
-          )}
-          {soldOut ? (
-            <span className="font-label text-label-caps uppercase text-on-surface-variant">
-              Agotado
-            </span>
-          ) : (
-            isWhatsAppNumberConfigured() && (
-              <a
-                href={buildProductInquiryUrl(product.name, product.price)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 font-label text-label-caps uppercase text-whatsapp transition-colors hover:text-primary"
-              >
-                <IconWhatsApp className="h-4 w-4" />
-                Consultar
-              </a>
-            )
-          )}
-        </div>
+        {price && (
+          <span className="mt-3 font-display text-headline-sm text-primary">
+            {price}
+          </span>
+        )}
+
+        {soldOut ? (
+          <span className="skew-slant mt-3 flex items-center justify-center border border-outline-variant/50 py-2.5 font-label text-label-caps uppercase text-on-surface-variant">
+            <span className="skew-slant">Agotado</span>
+          </span>
+        ) : (
+          isWhatsAppNumberConfigured() && (
+            <a
+              href={buildProductInquiryUrl(product.name, product.price)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="skew-slant mt-3 flex items-center justify-center gap-2 bg-whatsapp py-2.5 font-label text-label-caps uppercase text-white transition-all hover:brightness-110 active:translate-y-0.5"
+            >
+              <SiWhatsapp className="skew-slant h-4 w-4" />
+              <span className="skew-slant">Consultar</span>
+            </a>
+          )
+        )}
       </div>
     </div>
   );

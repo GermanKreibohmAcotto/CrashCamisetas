@@ -4,7 +4,8 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { useCart } from "@/lib/cart-context";
-import { IconCheck, IconWhatsApp } from "@/components/icons";
+import { Check } from "lucide-react";
+import { SiWhatsapp } from "@icons-pack/react-simple-icons";
 import type { ProductWithVariants } from "@/lib/types";
 
 // Reemplaza el <select> original por la grilla de talles del diseño y
@@ -118,7 +119,7 @@ export function SizeSelector({ product }: { product: ProductWithVariants }) {
               href="/carrito"
               className={`${pinnedButtonClasses} bg-tertiary text-on-tertiary`}
             >
-              <IconCheck className="skew-slant h-5 w-5" />
+              <Check className="skew-slant h-5 w-5" />
               <span className="skew-slant uppercase">Agregado — Ver pedido</span>
             </Link>
           </motion.div>
@@ -134,10 +135,7 @@ export function SizeSelector({ product }: { product: ProductWithVariants }) {
               type="submit"
               className={`${pinnedButtonClasses} bg-whatsapp text-white hover:brightness-110 active:translate-y-1`}
             >
-              <IconWhatsApp
-                className="skew-slant h-5 w-5"
-                cutoutColor="var(--color-whatsapp)"
-              />
+              <SiWhatsapp className="skew-slant h-5 w-5" />
               <span className="skew-slant uppercase">Agregar al pedido</span>
             </button>
           </motion.div>

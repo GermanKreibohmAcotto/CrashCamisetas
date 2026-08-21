@@ -7,7 +7,7 @@ import { slugify } from "@/lib/slugify";
 import { toUploadableImage } from "@/lib/heic";
 import { createProduct, updateProduct, type VariantInput } from "./actions";
 import type { Category, ProductBadge } from "@/lib/types";
-import { IconClose } from "@/components/icons";
+import { X } from "lucide-react";
 
 const BADGE_OPTIONS: { value: ProductBadge; label: string }[] = [
   { value: "nuevo", label: "Nuevo" },
@@ -365,7 +365,7 @@ export function ProductForm({
                   aria-label="Quitar foto"
                   className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-surface/80 text-on-surface opacity-0 transition-opacity group-hover:opacity-100"
                 >
-                  <IconClose className="h-3 w-3" />
+                  <X className="h-3 w-3" />
                 </button>
               </div>
             ))}

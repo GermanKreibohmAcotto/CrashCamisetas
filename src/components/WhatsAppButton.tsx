@@ -5,7 +5,7 @@ import {
   isWhatsAppNumberConfigured,
   type PriceMap,
 } from "@/lib/whatsapp";
-import { IconWhatsApp } from "@/components/icons";
+import { SiWhatsapp } from "@icons-pack/react-simple-icons";
 import type { CartItem } from "@/lib/types";
 
 export function WhatsAppButton({
@@ -46,10 +46,7 @@ export function WhatsAppButton({
       rel="noopener noreferrer"
       className="skew-slant flex items-center justify-center gap-3 bg-whatsapp px-8 py-5 font-display text-headline-sm text-white transition-all hover:brightness-110 active:translate-y-1"
     >
-      <IconWhatsApp
-        className="skew-slant h-5 w-5"
-        cutoutColor="var(--color-whatsapp)"
-      />
+      <SiWhatsapp className="skew-slant h-5 w-5" />
       <span className="skew-slant uppercase">Enviar pedido por WhatsApp</span>
     </a>
   );

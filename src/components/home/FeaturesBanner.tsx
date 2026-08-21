@@ -1,9 +1,9 @@
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
-import { IconHeadset, IconShield, IconTruck } from "@/components/icons";
+import { Headset, ShieldCheck, Truck } from "lucide-react";
 
 const FEATURES = [
   {
-    icon: IconShield,
+    icon: ShieldCheck,
     title: "Calidad Premium",
     description:
       "Telas de alta tecnología, trabajamos con provedores G5 nacionales e importados, consultanos para mas información.",
@@ -11,14 +11,14 @@ const FEATURES = [
     glow: "group-hover:border-primary group-hover:shadow-[0_0_15px_rgba(151,204,254,0.3)]",
   },
   {
-    icon: IconTruck,
+    icon: Truck,
     title: "Envío Nacional",
     description: "Despachamos a todo el país. Coordinamos la entrega por WhatsApp.",
     color: "text-secondary",
     glow: "group-hover:border-secondary group-hover:shadow-[0_0_15px_rgba(255,183,125,0.3)]",
   },
   {
-    icon: IconHeadset,
+    icon: Headset,
     title: "Atención 24/7",
     description:
       "Resolvemos tus dudas al instante por WhatsApp. Asesoramiento personalizado.",

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { IconInstagram, IconWhatsApp } from "@/components/icons";
+import { SiInstagram, SiWhatsapp } from "@icons-pack/react-simple-icons";
 
 const STORE_NAME = process.env.NEXT_PUBLIC_STORE_NAME || "Crash Camisetas";
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
@@ -50,7 +50,7 @@ export function Footer() {
               aria-label="Seguinos en Instagram"
               className="flex w-fit items-center gap-2 text-on-surface-variant transition-colors hover:text-primary"
             >
-              <IconInstagram className="h-5 w-5" />
+              <SiInstagram className="h-5 w-5" />
               <span className="font-label text-label-caps uppercase">
                 {instagramHandle(INSTAGRAM_URL)}
               </span>
@@ -121,10 +121,7 @@ export function Footer() {
               rel="noopener noreferrer"
               className="skew-slant flex items-center gap-3 bg-whatsapp px-8 py-4 font-display text-headline-sm text-white transition-all hover:brightness-110 active:translate-y-0.5"
             >
-              <IconWhatsApp
-                className="skew-slant h-5 w-5"
-                cutoutColor="var(--color-whatsapp)"
-              />
+              <SiWhatsapp className="skew-slant h-5 w-5" />
               <span className="skew-slant">Chatear por WhatsApp</span>
             </a>
           )}

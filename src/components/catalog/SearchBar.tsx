@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { IconSearch } from "@/components/icons";
+import { Search } from "lucide-react";
 
 export function SearchBar({ className }: { className?: string }) {
   const router = useRouter();
@@ -18,7 +18,7 @@ export function SearchBar({ className }: { className?: string }) {
   return (
     <form onSubmit={handleSubmit} className={className}>
       <div className="flex items-center gap-2 rounded-lg border-b-2 border-outline bg-surface-container-high px-4 py-2 transition-colors focus-within:border-primary focus-within:shadow-[0_0_12px_rgba(151,204,254,0.35)]">
-        <IconSearch className="h-4 w-4 shrink-0 text-on-surface-variant" />
+        <Search className="h-4 w-4 shrink-0 text-on-surface-variant" />
         <input
           type="text"
           value={value}

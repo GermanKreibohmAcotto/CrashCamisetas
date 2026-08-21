@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    // lucide-react ya viene optimizado por defecto en Next; este paquete
+    // no, y sin esto el dev server carga el barrel completo de logos de
+    // marca en cada reload.
+    optimizePackageImports: ["@icons-pack/react-simple-icons"],
+  },
   images: {
     remotePatterns: [
       {

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { useCart } from "@/lib/cart-context";
-import { IconCart } from "@/components/icons";
+import { ShoppingCart } from "lucide-react";
 
 export function CartButton() {
   const { totalQty, hydrated } = useCart();
@@ -17,7 +17,7 @@ export function CartButton() {
       className="relative text-on-surface transition-colors hover:text-primary"
       aria-label="Ver pedido"
     >
-      <IconCart className="h-6 w-6" />
+      <ShoppingCart className="h-6 w-6" />
       <AnimatePresence>
         {showCount && (
           <motion.span

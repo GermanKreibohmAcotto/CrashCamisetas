@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { IconArrowLeft, IconArrowRight } from "@/components/icons";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { Category } from "@/lib/types";
 import { Reveal } from "@/components/motion/Reveal";
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
@@ -50,7 +50,7 @@ export function FeaturedCollections({
                 aria-label="Anterior"
                 className="skew-slant flex h-12 w-12 items-center justify-center border border-outline-variant bg-surface-container text-primary transition-colors hover:border-primary hover:bg-surface-container-high"
               >
-                <IconArrowLeft className="skew-slant h-5 w-5" />
+                <ArrowLeft className="skew-slant h-5 w-5" />
               </button>
               <button
                 type="button"
@@ -58,7 +58,7 @@ export function FeaturedCollections({
                 aria-label="Siguiente"
                 className="skew-slant flex h-12 w-12 items-center justify-center bg-primary text-on-primary shadow-[0_0_15px_rgba(151,204,254,0.3)] transition-colors hover:bg-primary-fixed"
               >
-                <IconArrowRight className="skew-slant h-5 w-5" />
+                <ArrowRight className="skew-slant h-5 w-5" />
               </button>
             </div>
           )}

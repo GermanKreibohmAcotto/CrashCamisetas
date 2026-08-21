@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { IconCheck } from "@/components/icons";
+import { Check } from "lucide-react";
 import type { Category } from "@/lib/types";
 
 type CatalogFiltersProps = {
@@ -69,7 +69,7 @@ export function CatalogFilters({ categories, sizes }: CatalogFiltersProps) {
                       active ? "border-primary bg-primary" : "border-outline"
                     }`}
                   >
-                    {active && <IconCheck className="h-3 w-3 text-on-primary" />}
+                    {active && <Check className="h-3 w-3 text-on-primary" />}
                   </span>
                   {category.name}
                 </button>

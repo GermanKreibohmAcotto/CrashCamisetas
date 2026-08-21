@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useCart } from "@/lib/cart-context";
 import { useCartPrices } from "@/lib/use-cart-prices";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
-import { IconClose } from "@/components/icons";
+import { X } from "lucide-react";
 import { formatPrice, parsePrice } from "@/lib/format";
 import type { CartItem } from "@/lib/types";
 import type { PriceMap } from "@/lib/whatsapp";
@@ -119,7 +119,7 @@ export default function CartPage() {
                 aria-label={`Quitar ${item.productName}`}
                 className="text-on-surface-variant transition-colors hover:text-error"
               >
-                <IconClose className="h-5 w-5" />
+                <X className="h-5 w-5" />
               </button>
             </motion.li>
             );

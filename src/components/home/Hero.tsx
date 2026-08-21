@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion, type Variants } from "motion/react";
-import { IconArrowDown } from "@/components/icons";
+import { ArrowDown } from "lucide-react";
 
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
 const CONTACT_URL = WHATSAPP_NUMBER
@@ -125,7 +125,7 @@ export function Hero() {
         <span className="font-label text-label-caps uppercase text-on-surface-variant">
           Scroll
         </span>
-        <IconArrowDown className="h-5 w-5 text-primary" />
+        <ArrowDown className="h-5 w-5 text-primary" />
       </div>
     </section>
   );
