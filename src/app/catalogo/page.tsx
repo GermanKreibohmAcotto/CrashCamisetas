@@ -107,7 +107,18 @@ export default async function CatalogPage({ searchParams }: PageProps<"/catalogo
               combinación.
             </p>
           ) : (
-            <Stagger className="grid grid-cols-2 gap-gutter md:grid-cols-3">
+            // key fuerza un remount completo del Stagger cuando cambian
+            // los filtros. Sin esto, la animación de entrada (whileInView
+            // + viewport.once) ya se disparó una sola vez con la grilla
+            // original y nunca vuelve a correr para los productos nuevos:
+            // quedan pegados en su estado oculto (opacity:0), invisibles
+            // aunque la grilla siga ahí — el bug reportado de "se bugea al
+            // sacar el filtro". Un componente nuevo trae un IntersectionObserver
+            // nuevo, que dispara de inmediato si la grilla ya está en pantalla.
+            <Stagger
+              key={`${categoriaSlug ?? ""}|${talle ?? ""}|${q}`}
+              className="grid grid-cols-2 gap-gutter md:grid-cols-3"
+            >
               {products.map((product) => (
                 <StaggerItem key={product.id}>
                   <ProductCard product={product} />

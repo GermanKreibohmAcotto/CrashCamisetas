@@ -3,8 +3,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
-import { useCart } from "@/lib/cart-context";
+import { useCart, MAX_QTY_PER_ITEM } from "@/lib/cart-context";
 import { useCartPrices } from "@/lib/use-cart-prices";
+import { useCartStock } from "@/lib/use-cart-stock";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { X } from "lucide-react";
 import { formatPrice, parsePrice } from "@/lib/format";
@@ -17,6 +18,7 @@ export default function CartPage() {
   // reglas de hooks no permiten saltearlo cuando !hydrated o el carrito
   // está vacío. Con items = [] el hook no dispara ningún fetch.
   const { prices, loading: pricesLoading } = useCartPrices(items);
+  const { stock } = useCartStock(items);
 
   if (!hydrated) {
     return (
@@ -53,6 +55,21 @@ export default function CartPage() {
           {items.map((item) => {
             const price = parsePrice(prices.get(item.productId));
             const subtotal = price !== null ? formatPrice(price * item.qty) : null;
+
+            // Tope real para este talle: el stock recién leído de Supabase,
+            // con el techo minorista. Mientras el stock todavía no cargó,
+            // cae solo al techo minorista — no bloquea la interacción
+            // mientras se espera la respuesta.
+            const variantStock = stock.get(item.variantId);
+            const stockCap =
+              variantStock !== undefined
+                ? Math.min(variantStock, MAX_QTY_PER_ITEM)
+                : MAX_QTY_PER_ITEM;
+            // Si el admin bajó el stock mientras el carrito seguía abierto,
+            // se avisa en vez de recortar la cantidad sola — un carrito que
+            // cambia números sin que lo toques es peor que uno que avisa.
+            const overStock =
+              variantStock !== undefined && item.qty > stockCap;
 
             return (
             <motion.li
@@ -95,18 +112,24 @@ export default function CartPage() {
                     {subtotal ?? "Precio a confirmar"}
                   </p>
                 )}
+                {overStock && (
+                  <p className="text-xs text-error">
+                    Solo quedan {variantStock} disponibles
+                  </p>
+                )}
               </div>
 
               <input
                 type="number"
                 min={1}
+                max={stockCap}
                 value={item.qty}
                 onChange={(e) => {
                   const next = Number(e.target.value);
                   if (!next || next < 1) {
                     removeItem(item.variantId);
                   } else {
-                    setQty(item.variantId, next);
+                    setQty(item.variantId, next, stockCap);
                   }
                 }}
                 aria-label={`Cantidad de ${item.productName}, talle ${item.size}`}

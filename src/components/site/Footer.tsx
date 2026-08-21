@@ -131,6 +131,19 @@ export function Footer() {
       <div className="w-full border-t border-outline-variant bg-surface-container py-6 text-center text-sm text-on-surface-variant">
         © {new Date().getFullYear()} {STORE_NAME}. Hecho para los hinchas.
       </div>
+
+      {/* Crédito de autoría — hardcodeado a propósito, no es
+          configuración de la tienda. */}
+      <div className="w-full border-t border-outline-variant/50 bg-surface-container-lowest py-3 text-center text-xs text-on-surface-variant">
+        <a
+          href="https://www.linkedin.com/in/germankreibohmacotto/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="transition-colors hover:text-primary"
+        >
+          Desarrollado por Germán Kreibohm Acotto
+        </a>
+      </div>
     </footer>
   );
 }

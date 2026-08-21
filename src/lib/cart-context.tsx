@@ -11,6 +11,12 @@ import type { CartItem } from "@/lib/types";
 
 const STORAGE_KEY = "crash-cart-v1";
 
+// Tope por talle para un pedido minorista. Quien necesite más que esto es
+// mayorista, y ese volumen se negocia charlando por WhatsApp — que es
+// justamente el modelo del negocio. Cambiar en un solo lugar si hace falta
+// otro número.
+export const MAX_QTY_PER_ITEM = 50;
+
 type CartState = {
   items: CartItem[];
   hydrated: boolean;
@@ -18,8 +24,8 @@ type CartState = {
 
 type CartAction =
   | { type: "hydrate"; items: CartItem[] }
-  | { type: "add"; item: CartItem }
-  | { type: "setQty"; variantId: string; qty: number }
+  | { type: "add"; item: CartItem; maxQty?: number }
+  | { type: "setQty"; variantId: string; qty: number; maxQty?: number }
   | { type: "remove"; variantId: string }
   | { type: "clear" };
 
@@ -28,7 +34,12 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     case "hydrate":
       return { items: action.items, hydrated: true };
 
+    // El clamp acá es la red de seguridad real — lo que valida el
+    // formulario de producto es solo UX. Sin esto, clickear "Agregar"
+    // varias veces seguidas suma sin techo (bug reportado: "me deja
+    // agregar infinitas camisetas").
     case "add": {
+      const cap = action.maxQty ?? MAX_QTY_PER_ITEM;
       const existing = state.items.find(
         (item) => item.variantId === action.item.variantId,
       );
@@ -37,23 +48,31 @@ function cartReducer(state: CartState, action: CartAction): CartState {
           ...state,
           items: state.items.map((item) =>
             item.variantId === action.item.variantId
-              ? { ...item, qty: item.qty + action.item.qty }
+              ? { ...item, qty: Math.min(item.qty + action.item.qty, cap) }
               : item,
           ),
         };
       }
-      return { ...state, items: [...state.items, action.item] };
+      return {
+        ...state,
+        items: [
+          ...state.items,
+          { ...action.item, qty: Math.min(action.item.qty, cap) },
+        ],
+      };
     }
 
-    case "setQty":
+    case "setQty": {
+      const cap = action.maxQty ?? MAX_QTY_PER_ITEM;
       return {
         ...state,
         items: state.items.map((item) =>
           item.variantId === action.variantId
-            ? { ...item, qty: action.qty }
+            ? { ...item, qty: Math.min(action.qty, cap) }
             : item,
         ),
       };
+    }
 
     case "remove":
       return {
@@ -75,8 +94,11 @@ type CartContextValue = {
   items: CartItem[];
   hydrated: boolean;
   totalQty: number;
-  addItem: (item: CartItem) => void;
-  setQty: (variantId: string, qty: number) => void;
+  // maxQty es el tope absoluto para ESE talle (min(stock, MAX_QTY_PER_ITEM)),
+  // no lo que falta para llegar a él — el reducer hace la resta contra lo
+  // que ya haya en el carrito.
+  addItem: (item: CartItem, maxQty?: number) => void;
+  setQty: (variantId: string, qty: number, maxQty?: number) => void;
   removeItem: (variantId: string) => void;
   clear: () => void;
 };
@@ -117,8 +139,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     items: state.items,
     hydrated: state.hydrated,
     totalQty,
-    addItem: (item) => dispatch({ type: "add", item }),
-    setQty: (variantId, qty) => dispatch({ type: "setQty", variantId, qty }),
+    addItem: (item, maxQty) => dispatch({ type: "add", item, maxQty }),
+    setQty: (variantId, qty, maxQty) =>
+      dispatch({ type: "setQty", variantId, qty, maxQty }),
     removeItem: (variantId) => dispatch({ type: "remove", variantId }),
     clear: () => dispatch({ type: "clear" }),
   };
