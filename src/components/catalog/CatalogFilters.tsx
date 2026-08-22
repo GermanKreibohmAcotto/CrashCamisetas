@@ -9,25 +9,39 @@ type CatalogFiltersProps = {
   sizes: string[];
 };
 
+function parseList(value: string | null): string[] {
+  if (!value) return [];
+  return [...new Set(value.split(",").map((s) => s.trim()).filter(Boolean))];
+}
+
 export function CatalogFilters({ categories, sizes }: CatalogFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const activeCategoria = searchParams.get("categoria");
-  const activeTalle = searchParams.get("talle");
+  const activeCategorias = parseList(searchParams.get("categoria"));
+  const activeTalles = parseList(searchParams.get("talle"));
   const hasActiveFilters = Boolean(
-    activeCategoria || activeTalle || searchParams.get("q"),
+    activeCategorias.length > 0 ||
+      activeTalles.length > 0 ||
+      searchParams.get("q"),
   );
 
-  function updateParam(key: string, value: string | null) {
-    const next = new URLSearchParams(searchParams.toString());
-    if (value) {
-      next.set(key, value);
+  // Agrega o saca `value` de la lista que ya está en `key`, y reescribe el
+  // parámetro unido por comas (o lo borra si queda vacío). Varias casillas
+  // marcadas a la vez suman con OR entre sí — ver catalogo/page.tsx.
+  function toggleListParam(key: string, value: string, current: string[]) {
+    const next = current.includes(value)
+      ? current.filter((v) => v !== value)
+      : [...current, value];
+
+    const nextParams = new URLSearchParams(searchParams.toString());
+    if (next.length > 0) {
+      nextParams.set(key, next.join(","));
     } else {
-      next.delete(key);
+      nextParams.delete(key);
     }
-    const query = next.toString();
+    const query = nextParams.toString();
     router.push(query ? `${pathname}?${query}` : pathname);
   }
 
@@ -50,13 +64,13 @@ export function CatalogFilters({ categories, sizes }: CatalogFiltersProps) {
           </h3>
           <div className="flex flex-col gap-2">
             {categories.map((category) => {
-              const active = activeCategoria === category.slug;
+              const active = activeCategorias.includes(category.slug);
               return (
                 <button
                   key={category.id}
                   type="button"
                   onClick={() =>
-                    updateParam("categoria", active ? null : category.slug)
+                    toggleListParam("categoria", category.slug, activeCategorias)
                   }
                   className={`flex items-center gap-2 text-left text-sm transition-colors ${
                     active
@@ -86,12 +100,12 @@ export function CatalogFilters({ categories, sizes }: CatalogFiltersProps) {
           </h3>
           <div className="flex flex-wrap gap-2">
             {sizes.map((size) => {
-              const active = activeTalle === size;
+              const active = activeTalles.includes(size);
               return (
                 <button
                   key={size}
                   type="button"
-                  onClick={() => updateParam("talle", active ? null : size)}
+                  onClick={() => toggleListParam("talle", size, activeTalles)}
                   className={`flex h-10 w-10 items-center justify-center border text-sm font-medium transition-colors ${
                     active
                       ? "border-primary bg-primary text-on-primary"

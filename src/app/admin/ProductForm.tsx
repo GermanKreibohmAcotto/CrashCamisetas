@@ -7,7 +7,7 @@ import { slugify } from "@/lib/slugify";
 import { toUploadableImage } from "@/lib/heic";
 import { createProduct, updateProduct, type VariantInput } from "./actions";
 import type { Category, ProductBadge } from "@/lib/types";
-import { X } from "lucide-react";
+import { Check, X } from "lucide-react";
 
 const BADGE_OPTIONS: { value: ProductBadge; label: string }[] = [
   { value: "nuevo", label: "Nuevo" },
@@ -29,7 +29,7 @@ type ProductFormProps = {
     name: string;
     slug: string;
     description: string;
-    categoryId: string | null;
+    categoryIds: string[];
     imageUrl: string | null;
     price: number | null;
     badge: ProductBadge | null;
@@ -51,7 +51,9 @@ export function ProductForm({
   const [slug, setSlug] = useState(initial?.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(mode === "edit");
   const [description, setDescription] = useState(initial?.description ?? "");
-  const [categoryId, setCategoryId] = useState(initial?.categoryId ?? "");
+  const [categoryIds, setCategoryIds] = useState<string[]>(
+    initial?.categoryIds ?? [],
+  );
   // String, no number: el resto del form usa el idiom Number(x) || 0 para
   // stock, pero eso colapsa "", 0 y NaN todos a 0 — acá necesitamos poder
   // distinguir "sin precio cargado" (input vacío) de "precio cero" real.
@@ -148,6 +150,14 @@ export function ProductForm({
     setImages((prev) => prev.filter((u) => u !== url));
   }
 
+  function toggleCategory(categoryId: string) {
+    setCategoryIds((prev) =>
+      prev.includes(categoryId)
+        ? prev.filter((id) => id !== categoryId)
+        : [...prev, categoryId],
+    );
+  }
+
   function updateVariant(index: number, patch: Partial<VariantInput>) {
     setVariants((prev) =>
       prev.map((v, i) => (i === index ? { ...v, ...patch } : v)),
@@ -206,7 +216,7 @@ export function ProductForm({
       name: cleanName,
       slug: cleanSlug,
       description: description.trim(),
-      categoryId: categoryId || null,
+      categoryIds,
       imageUrl,
       price: priceValue,
       badge,
@@ -283,41 +293,59 @@ export function ProductForm({
         />
       </label>
 
-      <div className="grid grid-cols-2 gap-4">
-        <label className={labelClasses}>
-          <span className={labelTextClasses}>Categoría</span>
-          <select
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            className={inputClasses}
-          >
-            <option value="">Sin categoría</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className={labelClasses}>
-          <span className={labelTextClasses}>Badge</span>
-          <select
-            value={badge ?? ""}
-            onChange={(e) =>
-              setBadge((e.target.value || null) as ProductBadge | null)
-            }
-            className={inputClasses}
-          >
-            <option value="">Sin badge</option>
-            {BADGE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+      <div className={labelClasses}>
+        <span className={labelTextClasses}>Categorías</span>
+        {categories.length === 0 ? (
+          <p className="text-sm text-on-surface-variant">
+            Todavía no hay categorías cargadas.
+          </p>
+        ) : (
+          <div className="flex flex-wrap gap-3">
+            {categories.map((category) => {
+              const active = categoryIds.includes(category.id);
+              return (
+                <button
+                  key={category.id}
+                  type="button"
+                  onClick={() => toggleCategory(category.id)}
+                  className={`flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition-colors ${
+                    active
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-outline-variant text-on-surface-variant hover:border-primary"
+                  }`}
+                >
+                  <span
+                    className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border ${
+                      active ? "border-primary bg-primary" : "border-outline"
+                    }`}
+                  >
+                    {active && <Check className="h-3 w-3 text-on-primary" />}
+                  </span>
+                  {category.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
+
+      <label className={labelClasses}>
+        <span className={labelTextClasses}>Badge</span>
+        <select
+          value={badge ?? ""}
+          onChange={(e) =>
+            setBadge((e.target.value || null) as ProductBadge | null)
+          }
+          className={inputClasses}
+        >
+          <option value="">Sin badge</option>
+          {BADGE_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </label>
 
       <label className="flex items-center gap-2">
         <input

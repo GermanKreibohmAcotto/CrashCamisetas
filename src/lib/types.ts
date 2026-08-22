@@ -37,7 +37,6 @@ export const BADGE_LABEL: Record<ProductBadge, string> = {
 
 export type Product = {
   id: string;
-  category_id: string | null;
   name: string;
   slug: string;
   description: string | null;
@@ -52,7 +51,10 @@ export type Product = {
 
 export type ProductWithVariants = Product & {
   variants: ProductVariant[];
-  category: Category | null;
+  // Un producto puede pertenecer a varias categorías (tabla puente
+  // product_categories). Reemplaza a la vieja category_id/category
+  // única — ver src/lib/products-query.ts.
+  categories: Category[];
   // Fotos adicionales de la galería, más allá de la portada (image_url).
   // Ausente u [] cuando el producto no tiene galería cargada.
   images?: ProductImage[];

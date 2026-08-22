@@ -30,6 +30,9 @@ create table if not exists categories (
 
 create table if not exists products (
   id          uuid primary key default gen_random_uuid(),
+  -- legacy: reemplazada por product_categories (N a N). Se conserva la
+  -- columna y sus datos por compatibilidad hacia atrás; el código de la
+  -- app ya no la lee ni la escribe.
   category_id uuid references categories (id) on delete set null,
   name        text not null,
   slug        text not null unique,
@@ -72,6 +75,20 @@ create table if not exists product_images (
 
 create index if not exists product_images_product_id_idx on product_images (product_id);
 
+-- Tabla puente N a N entre products y categories — un producto puede
+-- pertenecer a varias categorías. El primary key TIENE que ser el
+-- compuesto de las dos foreign keys: desde PostgREST v10, una tabla
+-- puente solo se detecta como join table (embebible desde el cliente)
+-- si su PK incluye ambas columnas FK.
+create table if not exists product_categories (
+  product_id  uuid not null references products (id) on delete cascade,
+  category_id uuid not null references categories (id) on delete cascade,
+  primary key (product_id, category_id)
+);
+
+create index if not exists product_categories_category_id_idx
+  on product_categories (category_id);
+
 -- ------------------------------------------------------------
 -- updated_at automático en products
 -- ------------------------------------------------------------
@@ -107,6 +124,7 @@ alter table categories enable row level security;
 alter table products enable row level security;
 alter table product_variants enable row level security;
 alter table product_images enable row level security;
+alter table product_categories enable row level security;
 
 -- categories: lectura pública total, escritura solo logueados
 drop policy if exists "categories_select_public" on categories;
@@ -223,6 +241,33 @@ create policy "product_images_row_delete_auth" on product_images
   to authenticated
   using (true);
 
+-- product_categories: misma regla que las demás — lectura pública,
+-- escritura solo logueados
+drop policy if exists "product_categories_select_public" on product_categories;
+create policy "product_categories_select_public" on product_categories
+  for select
+  to anon, authenticated
+  using (true);
+
+drop policy if exists "product_categories_insert_auth" on product_categories;
+create policy "product_categories_insert_auth" on product_categories
+  for insert
+  to authenticated
+  with check (true);
+
+drop policy if exists "product_categories_update_auth" on product_categories;
+create policy "product_categories_update_auth" on product_categories
+  for update
+  to authenticated
+  using (true)
+  with check (true);
+
+drop policy if exists "product_categories_delete_auth" on product_categories;
+create policy "product_categories_delete_auth" on product_categories
+  for delete
+  to authenticated
+  using (true);
+
 -- ------------------------------------------------------------
 -- Storage: bucket público de imágenes de producto
 -- (RLS ya viene habilitada por Supabase en storage.objects)
@@ -291,3 +336,10 @@ on conflict (product_id, size) do nothing;
 
 update products set badge = 'nuevo'
 where slug = 'boca-juniors-titular-2026' and badge is null;
+
+insert into product_categories (product_id, category_id)
+select p.id, p.category_id
+from products p
+where p.slug in ('boca-juniors-titular-2026', 'river-plate-suplente-2026')
+  and p.category_id is not null
+on conflict do nothing;

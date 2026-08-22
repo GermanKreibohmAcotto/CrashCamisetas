@@ -58,9 +58,9 @@ export function ProductCard({ product }: { product: ProductWithVariants }) {
             {product.name}
           </h3>
         </Link>
-        {product.category && (
-          <p className="text-sm text-on-surface-variant">
-            {product.category.name}
+        {product.categories.length > 0 && (
+          <p className="truncate text-sm text-on-surface-variant">
+            {product.categories.map((c) => c.name).join(" · ")}
           </p>
         )}
 

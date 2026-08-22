@@ -9,6 +9,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import type { ProductImage, ProductWithVariants } from "@/lib/types";
 import { formatPrice } from "@/lib/format";
+import { PRODUCT_SELECT, toProductWithVariants, toProductsWithVariants } from "@/lib/products-query";
 
 export default async function ProductPage({
   params,
@@ -18,7 +19,7 @@ export default async function ProductPage({
 
   const { data: product } = await supabase
     .from("products")
-    .select("*, variants:product_variants(*), category:categories(*)")
+    .select(PRODUCT_SELECT)
     .eq("slug", slug)
     .eq("is_active", true)
     .maybeSingle();
@@ -27,7 +28,7 @@ export default async function ProductPage({
     notFound();
   }
 
-  const typedProduct = product as ProductWithVariants;
+  const typedProduct = toProductWithVariants(product);
   const sortedVariants = [...typedProduct.variants].sort(
     (a, b) => a.sort_order - b.sort_order,
   );
@@ -42,18 +43,32 @@ export default async function ProductPage({
     .eq("product_id", typedProduct.id)
     .order("sort_order", { ascending: true });
 
-  const { data: relatedRaw } = typedProduct.category_id
-    ? await supabase
-        .from("products")
-        .select("*, variants:product_variants(*), category:categories(*)")
-        .eq("category_id", typedProduct.category_id)
-        .eq("is_active", true)
-        .neq("id", typedProduct.id)
-        .order("created_at", { ascending: false })
-        .limit(4)
-    : { data: [] as ProductWithVariants[] };
+  // Relacionados: productos que comparten ALGUNA categoría con este, vía
+  // la tabla puente. Dos pasos porque un !inner acá recortaría el embed de
+  // variants/categories que necesita ProductCard.
+  const categoryIds = typedProduct.categories.map((c) => c.id);
+  let related: ProductWithVariants[] = [];
+  if (categoryIds.length > 0) {
+    const { data: relatedProductIdsRaw } = await supabase
+      .from("product_categories")
+      .select("product_id")
+      .in("category_id", categoryIds)
+      .neq("product_id", typedProduct.id);
+    const relatedProductIds = [
+      ...new Set((relatedProductIdsRaw ?? []).map((r) => r.product_id)),
+    ];
 
-  const related = (relatedRaw ?? []) as ProductWithVariants[];
+    if (relatedProductIds.length > 0) {
+      const { data: relatedRaw } = await supabase
+        .from("products")
+        .select(PRODUCT_SELECT)
+        .in("id", relatedProductIds)
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(4);
+      related = toProductsWithVariants(relatedRaw ?? []);
+    }
+  }
 
   const nameParts = typedProduct.name.split(" ");
   const lastWord = nameParts.pop();
@@ -72,9 +87,9 @@ export default async function ProductPage({
           />
 
           <div className="flex flex-col gap-6">
-            {typedProduct.category && (
+            {typedProduct.categories.length > 0 && (
               <span className="font-label text-label-caps uppercase tracking-widest text-primary">
-                {typedProduct.category.name}
+                {typedProduct.categories.map((c) => c.name).join(" · ")}
               </span>
             )}
 
@@ -115,7 +130,11 @@ export default async function ProductPage({
                 </h2>
               </div>
               <Link
-                href={`/catalogo${typedProduct.category ? `?categoria=${typedProduct.category.slug}` : ""}`}
+                href={`/catalogo${
+                  typedProduct.categories.length > 0
+                    ? `?categoria=${typedProduct.categories.map((c) => c.slug).join(",")}`
+                    : ""
+                }`}
                 className="hidden shrink-0 font-label text-label-caps uppercase text-primary hover:underline sm:block"
               >
                 Ver todo →

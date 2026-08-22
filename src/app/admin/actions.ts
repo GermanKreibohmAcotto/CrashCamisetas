@@ -14,7 +14,9 @@ export type ProductInput = {
   name: string;
   slug: string;
   description: string;
-  categoryId: string | null;
+  // Un producto puede pertenecer a varias categorías — ver
+  // supabase/migrations/003_product_categories.sql.
+  categoryIds: string[];
   imageUrl: string | null;
   // null = "a convenir" (se charla por WhatsApp). Distinto de 0, que es
   // un precio real: el form lo maneja como string para no confundir
@@ -78,6 +80,35 @@ async function replaceVariants(
   return insertError?.message ?? null;
 }
 
+async function replaceCategories(
+  supabase: Awaited<ReturnType<typeof requireUser>>,
+  productId: string,
+  categoryIds: string[],
+) {
+  const { error: deleteError } = await supabase
+    .from("product_categories")
+    .delete()
+    .eq("product_id", productId);
+  if (deleteError) {
+    if (isMissingSchemaError(deleteError.code)) return MIGRATION_HINT;
+    return deleteError.message;
+  }
+
+  if (categoryIds.length === 0) return null;
+
+  const { error: insertError } = await supabase.from("product_categories").insert(
+    categoryIds.map((categoryId) => ({
+      product_id: productId,
+      category_id: categoryId,
+    })),
+  );
+  if (insertError) {
+    if (isMissingSchemaError(insertError.code)) return MIGRATION_HINT;
+    return insertError.message;
+  }
+  return null;
+}
+
 async function replaceImages(
   supabase: Awaited<ReturnType<typeof requireUser>>,
   productId: string,
@@ -119,7 +150,6 @@ export async function createProduct(
       name: input.name,
       slug: input.slug,
       description: input.description || null,
-      category_id: input.categoryId,
       image_url: input.imageUrl,
       price: input.price,
       badge: input.badge,
@@ -145,6 +175,13 @@ export async function createProduct(
   );
   if (variantsError) return { error: variantsError };
 
+  const categoriesError = await replaceCategories(
+    supabase,
+    product.id,
+    input.categoryIds,
+  );
+  if (categoriesError) return { error: categoriesError };
+
   const imagesError = await replaceImages(supabase, product.id, input.images);
   if (imagesError) return { error: imagesError };
 
@@ -165,7 +202,6 @@ export async function updateProduct(
       name: input.name,
       slug: input.slug,
       description: input.description || null,
-      category_id: input.categoryId,
       image_url: input.imageUrl,
       price: input.price,
       badge: input.badge,
@@ -189,6 +225,13 @@ export async function updateProduct(
     input.variants,
   );
   if (variantsError) return { error: variantsError };
+
+  const categoriesError = await replaceCategories(
+    supabase,
+    productId,
+    input.categoryIds,
+  );
+  if (categoriesError) return { error: categoriesError };
 
   const imagesError = await replaceImages(supabase, productId, input.images);
   if (imagesError) return { error: imagesError };

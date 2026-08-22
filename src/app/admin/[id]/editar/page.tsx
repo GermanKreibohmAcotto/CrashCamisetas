@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ProductForm } from "../../ProductForm";
-import type { Category, ProductImage, ProductWithVariants } from "@/lib/types";
+import { PRODUCT_SELECT, toProductWithVariants } from "@/lib/products-query";
+import type { Category, ProductImage } from "@/lib/types";
 
 export default async function EditProductPage({
   params,
@@ -12,7 +13,7 @@ export default async function EditProductPage({
   const [{ data: product }, { data: categories }] = await Promise.all([
     supabase
       .from("products")
-      .select("*, variants:product_variants(*)")
+      .select(PRODUCT_SELECT)
       .eq("id", id)
       .maybeSingle(),
     supabase
@@ -25,7 +26,7 @@ export default async function EditProductPage({
     notFound();
   }
 
-  const typedProduct = product as ProductWithVariants;
+  const typedProduct = toProductWithVariants(product);
   const sortedVariants = [...typedProduct.variants].sort(
     (a, b) => a.sort_order - b.sort_order,
   );
@@ -54,7 +55,7 @@ export default async function EditProductPage({
           name: typedProduct.name,
           slug: typedProduct.slug,
           description: typedProduct.description ?? "",
-          categoryId: typedProduct.category_id,
+          categoryIds: typedProduct.categories.map((c) => c.id),
           imageUrl: typedProduct.image_url,
           price: typedProduct.price ?? null,
           badge: typedProduct.badge ?? null,

@@ -2,18 +2,18 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { ToggleActiveButton, DeleteProductButton } from "./ProductRowActions";
-import type { ProductWithVariants } from "@/lib/types";
 import { formatPrice } from "@/lib/format";
+import { PRODUCT_SELECT, toProductsWithVariants } from "@/lib/products-query";
 
 export default async function AdminProductsPage() {
   const supabase = await createClient();
 
   const { data } = await supabase
     .from("products")
-    .select("*, variants:product_variants(*), category:categories(*)")
+    .select(PRODUCT_SELECT)
     .order("created_at", { ascending: false });
 
-  const products = (data ?? []) as ProductWithVariants[];
+  const products = toProductsWithVariants(data ?? []);
 
   return (
     <div>
@@ -83,7 +83,9 @@ export default async function AdminProductsPage() {
                     </td>
                     <td className="px-3 py-2 text-on-surface">{product.name}</td>
                     <td className="px-3 py-2 text-on-surface-variant">
-                      {product.category?.name ?? "—"}
+                      {product.categories.length > 0
+                        ? product.categories.map((c) => c.name).join(", ")
+                        : "—"}
                     </td>
                     <td className="px-3 py-2 text-on-surface-variant">
                       {formatPrice(product.price) ?? "—"}

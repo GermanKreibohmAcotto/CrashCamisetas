@@ -9,7 +9,8 @@ import { FeaturesBanner } from "@/components/home/FeaturesBanner";
 import { ProductCard } from "@/components/ProductCard";
 import { Reveal } from "@/components/motion/Reveal";
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
-import type { Category, ProductWithVariants } from "@/lib/types";
+import { PRODUCT_SELECT, toProductsWithVariants } from "@/lib/products-query";
+import type { Category } from "@/lib/types";
 
 const FEATURED_LIMIT = 8;
 
@@ -21,16 +22,16 @@ export default async function HomePage() {
       supabase.from("categories").select("*").order("sort_order", { ascending: true }),
       // Las categorías no tienen foto propia: se usa la portada del
       // producto activo más nuevo de cada una como imagen de la tarjeta.
+      // Un producto en varias categorías es portada candidata de todas.
       supabase
         .from("products")
-        .select("category_id, image_url")
+        .select("id, image_url, product_categories(category_id)")
         .eq("is_active", true)
         .not("image_url", "is", null)
-        .not("category_id", "is", null)
         .order("created_at", { ascending: false }),
       supabase
         .from("products")
-        .select("*, variants:product_variants(*), category:categories(*)")
+        .select(PRODUCT_SELECT)
         .eq("is_active", true)
         .order("created_at", { ascending: false })
         .limit(FEATURED_LIMIT),
@@ -38,8 +39,11 @@ export default async function HomePage() {
 
   const coverByCategory = new Map<string, string>();
   for (const row of coverRows ?? []) {
-    if (row.category_id && row.image_url && !coverByCategory.has(row.category_id)) {
-      coverByCategory.set(row.category_id, row.image_url);
+    if (!row.image_url) continue;
+    for (const pc of row.product_categories ?? []) {
+      if (!coverByCategory.has(pc.category_id)) {
+        coverByCategory.set(pc.category_id, row.image_url);
+      }
     }
   }
 
@@ -50,7 +54,7 @@ export default async function HomePage() {
     }),
   );
 
-  const products = (featuredProducts ?? []) as ProductWithVariants[];
+  const products = toProductsWithVariants(featuredProducts ?? []);
 
   return (
     <>
