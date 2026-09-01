@@ -10,9 +10,12 @@ import { ProductCard } from "@/components/ProductCard";
 import { Reveal } from "@/components/motion/Reveal";
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { PRODUCT_SELECT, toProductsWithVariants } from "@/lib/products-query";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { SITE_URL, STORE_NAME } from "@/lib/site";
 import type { Category } from "@/lib/types";
 
 const FEATURED_LIMIT = 8;
+const INSTAGRAM_URL = process.env.NEXT_PUBLIC_INSTAGRAM_URL || "";
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -56,8 +59,27 @@ export default async function HomePage() {
 
   const products = toProductsWithVariants(featuredProducts ?? []);
 
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: STORE_NAME,
+    url: SITE_URL,
+    logo: `${SITE_URL}/logo.png`,
+    ...(INSTAGRAM_URL ? { sameAs: [INSTAGRAM_URL] } : {}),
+  };
+
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: STORE_NAME,
+    url: SITE_URL,
+  };
+
   return (
     <>
+      <JsonLd data={organizationJsonLd} />
+      <JsonLd data={websiteJsonLd} />
+
       <Hero />
 
       <FeaturedCollections collections={collections} />
@@ -80,9 +102,9 @@ export default async function HomePage() {
             </p>
           ) : (
             <Stagger className="grid grid-cols-2 gap-gutter lg:grid-cols-4">
-              {products.map((product) => (
+              {products.map((product, index) => (
                 <StaggerItem key={product.id}>
-                  <ProductCard product={product} />
+                  <ProductCard product={product} priority={index < 2} />
                 </StaggerItem>
               ))}
             </Stagger>

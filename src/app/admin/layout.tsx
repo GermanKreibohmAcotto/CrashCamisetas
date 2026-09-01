@@ -1,7 +1,15 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { LogoutButton } from "./LogoutButton";
+
+// El panel de administración no tiene ningún valor de búsqueda y ya está
+// bloqueado en robots.ts — esto es el segundo cinturón: si un crawler
+// llega igual por un link externo, que no lo indexe.
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default async function AdminLayout({
   children,

@@ -5,6 +5,7 @@ import { CartProvider } from "@/lib/cart-context";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { StadiumGlow } from "@/components/site/StadiumGlow";
+import { SITE_URL, STORE_NAME } from "@/lib/site";
 
 const anybody = Anybody({
   subsets: ["latin"],
@@ -24,11 +25,40 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
 });
 
-const STORE_NAME = process.env.NEXT_PUBLIC_STORE_NAME || "Crash Camisetas";
+const DESCRIPTION =
+  `Camisetas de fútbol retro, de selecciones y de clubes nacionales e ` +
+  `internacionales. Elegí tu talle y coordiná el pedido directo por ` +
+  `WhatsApp — ${STORE_NAME}, envíos a todo el país.`;
 
 export const metadata: Metadata = {
-  title: STORE_NAME,
-  description: `Catálogo de ${STORE_NAME}. Armá tu pedido y enviálo por WhatsApp.`,
+  // Prerrequisito de todo el resto de metadata: sin esto, las imágenes
+  // Open Graph con ruta relativa (como opengraph-image.tsx) no resuelven
+  // a una URL absoluta y Next tira warning en build.
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: STORE_NAME,
+    // Cada página define solo su parte (ej. "River Titular 2026") y
+    // hereda la marca — así se evita repetir "Crash Camisetas" a mano
+    // en cada generateMetadata.
+    template: `%s | ${STORE_NAME}`,
+  },
+  description: DESCRIPTION,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "es_AR",
+    siteName: STORE_NAME,
+    url: SITE_URL,
+    title: STORE_NAME,
+    description: DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: STORE_NAME,
+    description: DESCRIPTION,
+  },
   icons: {
     icon: [
       { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SiInstagram, SiWhatsapp } from "@icons-pack/react-simple-icons";
+import { STORE_NAME } from "@/lib/site";
 
-const STORE_NAME = process.env.NEXT_PUBLIC_STORE_NAME || "Crash Camisetas";
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
 const INSTAGRAM_URL = process.env.NEXT_PUBLIC_INSTAGRAM_URL || "";
 

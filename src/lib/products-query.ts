@@ -1,3 +1,5 @@
+import { cache } from "react";
+import { createClient } from "@/lib/supabase/server";
 import type { Category, ProductVariant, ProductWithVariants } from "@/lib/types";
 
 // Select compartido por toda lectura de producto. product_categories es la
@@ -34,3 +36,19 @@ export function toProductWithVariants(row: RawProduct): ProductWithVariants {
 export function toProductsWithVariants(rows: RawProduct[]): ProductWithVariants[] {
   return rows.map(toProductWithVariants);
 }
+
+// Envuelto en cache() de React: generateMetadata y el componente de la
+// página piden el mismo producto en el mismo request, y a diferencia de
+// fetch(), el cliente de Supabase no se memoiza solo. Sin esto, cada
+// visita a /producto/[slug] dispara la consulta dos veces.
+export const getProductBySlug = cache(async (slug: string) => {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("products")
+    .select(PRODUCT_SELECT)
+    .eq("slug", slug)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  return data ? toProductWithVariants(data) : null;
+});

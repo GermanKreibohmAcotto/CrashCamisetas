@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { ProductCard } from "@/components/ProductCard";
 import { CatalogFilters } from "@/components/catalog/CatalogFilters";
@@ -22,6 +23,37 @@ function intersect(a: string[] | null, b: string[] | null): string[] | null {
   if (b === null) return a;
   const set = new Set(b);
   return a.filter((id) => set.has(id));
+}
+
+function humanizeSlug(slug: string): string {
+  return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+export async function generateMetadata({
+  searchParams,
+}: PageProps<"/catalogo">): Promise<Metadata> {
+  const params = await searchParams;
+  const categoriaSlugs = parseList(params.categoria as string | string[] | undefined);
+  const talles = parseList(params.talle as string | string[] | undefined);
+
+  const filterLabels = [
+    ...categoriaSlugs.map(humanizeSlug),
+    ...talles.map((t) => `Talle ${t}`),
+  ];
+  const title = filterLabels.length > 0 ? `Catálogo — ${filterLabels.join(", ")}` : "Catálogo";
+
+  return {
+    title,
+    description:
+      "Catálogo completo de camisetas de fútbol: retro, selecciones y clubes " +
+      "nacionales e internacionales. Filtrá por categoría y talle, y coordiná " +
+      "tu pedido por WhatsApp.",
+    // Canonical SIEMPRE fijo a /catalogo, sin importar los filtros activos:
+    // con 4 categorías y 6 talles hay cientos de combinaciones posibles —
+    // indexarlas sería contenido duplicado y quemaría crawl budget para
+    // nada. Se indexa una sola página de catálogo.
+    alternates: { canonical: "/catalogo" },
+  };
 }
 
 export default async function CatalogPage({ searchParams }: PageProps<"/catalogo">) {
@@ -141,9 +173,9 @@ export default async function CatalogPage({ searchParams }: PageProps<"/catalogo
               key={`${categoriaSlugs.join(",")}|${talles.join(",")}|${q}`}
               className="grid grid-cols-2 gap-gutter md:grid-cols-3"
             >
-              {products.map((product) => (
+              {products.map((product, index) => (
                 <StaggerItem key={product.id}>
-                  <ProductCard product={product} />
+                  <ProductCard product={product} priority={index < 2} />
                 </StaggerItem>
               ))}
             </Stagger>

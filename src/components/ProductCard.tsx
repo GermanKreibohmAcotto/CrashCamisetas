@@ -8,7 +8,17 @@ import { SiWhatsapp } from "@icons-pack/react-simple-icons";
 // Server Component: todo el hover/overlay es CSS puro (group-hover),
 // el único link interactivo es un <a> directo a WhatsApp — no hace
 // falta "use client" ni JS extra por tarjeta.
-export function ProductCard({ product }: { product: ProductWithVariants }) {
+//
+// priority: la foto de la primera tarjeta de una grilla suele ser el
+// LCP (Largest Contentful Paint) de la página — pasarla en false (el
+// default) la deja lazy, que es lo correcto para el resto de la grilla.
+export function ProductCard({
+  product,
+  priority = false,
+}: {
+  product: ProductWithVariants;
+  priority?: boolean;
+}) {
   const totalStock = product.variants.reduce((sum, v) => sum + v.stock, 0);
   const soldOut = totalStock === 0;
   const price = formatPrice(product.price);
@@ -34,6 +44,7 @@ export function ProductCard({ product }: { product: ProductWithVariants }) {
             alt={product.name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            priority={priority}
             className="relative z-10 object-contain drop-shadow-lg transition-transform duration-500 group-hover:scale-105"
           />
         ) : (

@@ -82,7 +82,13 @@ export function ProductGallery({
                   : "border-transparent hover:border-outline-variant"
               }`}
             >
-              <Image src={img.url} alt="" fill sizes="80px" className="object-cover" />
+              <Image
+                src={img.url}
+                alt={`${productName} — foto ${i + 1}`}
+                fill
+                sizes="80px"
+                className="object-cover"
+              />
             </button>
           ))}
         </div>
