@@ -4,7 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { ProductCard } from "@/components/ProductCard";
 import { CatalogFilters } from "@/components/catalog/CatalogFilters";
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { PRODUCT_SELECT, toProductsWithVariants } from "@/lib/products-query";
+import { SITE_URL, STORE_NAME } from "@/lib/site";
 import type { Category } from "@/lib/types";
 
 // Acepta tanto "?talle=S,M" (lo que arma CatalogFilters) como
@@ -61,7 +63,7 @@ export default async function CatalogPage({ searchParams }: PageProps<"/catalogo
   const q = typeof params.q === "string" ? params.q.trim() : "";
   const categoriaSlugs = parseList(params.categoria as string | string[] | undefined);
   const talles = parseList(params.talle as string | string[] | undefined);
-
+  
   const supabase = await createClient();
 
   const [{ data: categories }, { data: variantSizes }] = await Promise.all([
@@ -126,8 +128,21 @@ export default async function CatalogPage({ searchParams }: PageProps<"/catalogo
     products = toProductsWithVariants(data ?? []);
   }
 
+  const itemListJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `Catálogo de camisetas — ${STORE_NAME}`,
+    itemListElement: products.map((p, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      url: `${SITE_URL}/producto/${p.slug}`,
+      name: p.name,
+    })),
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-margin-mobile py-12 md:px-margin-desktop">
+      {products.length > 0 && <JsonLd data={itemListJsonLd} />}
       <div className="mb-8">
         <span className="mb-2 block font-label text-label-caps uppercase text-secondary">
           El Arsenal Completo

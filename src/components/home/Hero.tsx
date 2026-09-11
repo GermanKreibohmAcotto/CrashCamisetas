@@ -88,8 +88,9 @@ export function Hero() {
             variants={item}
             className="max-w-xl font-body text-body-lg text-on-surface-variant"
           >
-            Camisetas de fútbol para los verdaderos hinchas. Elegí tu talle y
-            coordiná tu pedido directo por WhatsApp.
+            Camisetas de fútbol retro, de selecciones y de clubes nacionales e
+            internacionales. Elegí tu talle y coordiná tu pedido directo por
+            WhatsApp.
           </motion.p>
 
           <motion.div

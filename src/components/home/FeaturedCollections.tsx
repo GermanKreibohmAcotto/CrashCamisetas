@@ -79,7 +79,7 @@ export function FeaturedCollections({
                 {imageUrl ? (
                   <Image
                     src={imageUrl}
-                    alt=""
+                    alt={`Camisetas de fútbol ${category.name.toLowerCase()}`}
                     fill
                     sizes="400px"
                     className="object-cover opacity-80 transition-transform duration-700 group-hover:scale-110 group-hover:opacity-100"

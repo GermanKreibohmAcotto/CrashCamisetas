@@ -75,10 +75,25 @@ export default async function HomePage() {
     url: SITE_URL,
   };
 
+  // ItemList explícito: ayuda a Google a entender que estos productos
+  // son el "catálogo destacado" del home y mejora rich results.
+  const itemListJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `Camisetas destacadas — ${STORE_NAME}`,
+    itemListElement: products.map((p, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      url: `${SITE_URL}/producto/${p.slug}`,
+      name: p.name,
+    })),
+  };
+
   return (
     <>
       <JsonLd data={organizationJsonLd} />
       <JsonLd data={websiteJsonLd} />
+      {products.length > 0 && <JsonLd data={itemListJsonLd} />}
 
       <Hero />
 

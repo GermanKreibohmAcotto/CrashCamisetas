@@ -28,11 +28,16 @@ export async function generateMetadata({
   const price = formatPrice(product.price);
   // Descripción real si el producto la tiene; si no, una armada a partir
   // de lo que ya sabemos (nombre, categorías, precio) — nunca vacía.
+  // La idea es que cada producto tenga al menos una frase única gracias
+  // a la combinación nombre + categorías, para que el fallback no sea
+  // contenido duplicado entre productos.
   const description = product.description?.trim()
     ? product.description
-    : `${product.name}${categoryNames ? ` — ${categoryNames}` : ""}. ${
-        price ? `${price}. ` : ""
-      }Coordiná tu pedido por WhatsApp en ${STORE_NAME}.`;
+    : `${product.name}${
+        categoryNames ? ` de ${categoryNames}` : ""
+      } — camiseta de fútbol disponible en distintos talles${
+        price ? `, referencia ${price}` : ", precio a convenir"
+      }. Coordiná tu pedido por WhatsApp en ${STORE_NAME}.`;
   const url = `${SITE_URL}/producto/${product.slug}`;
 
   return {

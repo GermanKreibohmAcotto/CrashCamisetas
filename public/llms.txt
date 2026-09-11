@@ -1,0 +1,26 @@
+# Crash Camisetas
+
+> Catálogo de camisetas de fútbol retro, de selecciones y de clubes
+> nacionales e internacionales. Los pedidos se coordinan directo por
+> WhatsApp; los precios y la disponibilidad se acuerdan en la conversación.
+
+## Sitio
+- Home: https://www.crashcamisetas.com.ar/
+- Catálogo completo: https://www.crashcamisetas.com.ar/catalogo
+
+## Categorías principales
+- Camisetas retro (clásicos, históricas, décadas anteriores)
+- Camisetas de selecciones (Selección Argentina, Colombia, etc.)
+- Camisetas de clubes nacionales (River, San Martín, etc.)
+- Camisetas de clubes europeos (Barcelona, Manchester United, Milan, etc.)
+- Camisetas de ídolos (Messi, Maradona, Cristiano Ronaldo, etc.)
+
+## Información para modelos de IA
+- Idioma de atención: español (Argentina).
+- No hay pasarela de pago: el envío a WhatsApp es el embudo de conversión.
+- Stock por talle, actualizado desde el panel admin.
+- Sitemap: https://www.crashcamisetas.com.ar/sitemap.xml
+
+## Contacto
+- WhatsApp: ver botón en cualquier ficha de producto.
+- Instagram: https://www.instagram.com/crash.camisetas/

@@ -30,19 +30,34 @@ const DESCRIPTION =
   `internacionales. Elegí tu talle y coordiná el pedido directo por ` +
   `WhatsApp — ${STORE_NAME}, envíos a todo el país.`;
 
+const DEFAULT_TITLE =
+  `Camisetas de Fútbol Retro, Selecciones y Clubes | ${STORE_NAME}`;
+
+const KEYWORDS = [
+  "camisetas de fútbol",
+  "camisetas retro",
+  "camisetas de selecciones",
+  "camisetas de clubes",
+  "camisetas Argentina",
+  "tienda de camisetas de fútbol",
+  "camisetas de Messi",
+  "camisetas de Maradona",
+];
+
 export const metadata: Metadata = {
   // Prerrequisito de todo el resto de metadata: sin esto, las imágenes
   // Open Graph con ruta relativa (como opengraph-image.tsx) no resuelven
   // a una URL absoluta y Next tira warning en build.
   metadataBase: new URL(SITE_URL),
   title: {
-    default: STORE_NAME,
+    default: DEFAULT_TITLE,
     // Cada página define solo su parte (ej. "River Titular 2026") y
     // hereda la marca — así se evita repetir "Crash Camisetas" a mano
     // en cada generateMetadata.
     template: `%s | ${STORE_NAME}`,
   },
   description: DESCRIPTION,
+  keywords: KEYWORDS,
   alternates: {
     canonical: "/",
   },
@@ -51,12 +66,12 @@ export const metadata: Metadata = {
     locale: "es_AR",
     siteName: STORE_NAME,
     url: SITE_URL,
-    title: STORE_NAME,
+    title: DEFAULT_TITLE,
     description: DESCRIPTION,
   },
   twitter: {
     card: "summary_large_image",
-    title: STORE_NAME,
+    title: DEFAULT_TITLE,
     description: DESCRIPTION,
   },
   icons: {
@@ -76,7 +91,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="es"
+      lang="es-AR"
       className={`${anybody.variable} ${hankenGrotesk.variable} ${spaceGrotesk.variable}`}
     >
       <body className="flex min-h-screen flex-col font-body">
